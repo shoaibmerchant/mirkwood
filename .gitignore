@@ -63,3 +63,4 @@ typings/
 
 # Dist
 dist/
+/errors.js
