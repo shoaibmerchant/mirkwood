@@ -1,12 +1,12 @@
 {
   "name": "mirkwood",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "GraphQL based Rapid Server-side Development framework",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "babel-node index.js --presets es2015,stage-2",
-    "dev": "nodemon --ignore 'tmp/*' --exec npm run build"
+    "build": "babel . --presets babel-preset-stage-2 --out-dir dist --ignore dist --ignore node_modules",
+    "prepublish": "npm run build"
   },
   "author": "Shoaib Merchant (Actonate)",
   "license": "MIT",
