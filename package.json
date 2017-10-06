@@ -9,7 +9,7 @@
     "prepublish": "npm run build"
   },
   "author": "Shoaib Merchant (Actonate)",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "dependencies": {
     "apollo-errors": "^1.5.1",
     "apollo-resolvers": "github:thebigredgeek/apollo-resolvers#v2",
