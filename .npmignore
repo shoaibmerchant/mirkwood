@@ -1,4 +1,4 @@
-errors/
-lib/
-utils/
-index.js
+./errors/
+./lib/
+./utils/
+./index.js
