@@ -2,3 +2,5 @@
 /lib
 /utils
 /index.js
+/.npmignore
+/.graphqlrc
