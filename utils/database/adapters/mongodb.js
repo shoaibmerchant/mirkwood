@@ -34,11 +34,43 @@ class MongoDbDatabaseAdapter {
 					let collection = db.collection(collectionName);
 
 					let query = args.query || {};
+
+					if (query._id) {
+						query._id = new ObjectID(query._id);
+					}
+
 					let resolvedFind = this._resolveFind(query);
 
 					args.sort = args.sort ? args.sort : {};
 					let sort = [ args.sort.field || false, args.sort.order === 'asc' ? 1: -1 ];
 					return collection.find(resolvedFind).sort(sort).skip(args.skip).limit(args.limit).toArray();
+				})
+				.then(res => {
+					resolve(res);
+				})
+				.catch(err => {
+					reject(err);
+				})
+		});
+		return dbPromise;
+	}
+
+	count = (datasource, args) => {
+		let dbPromise = new Promise((resolve, reject) => {
+			this.db
+				.then(db => {
+					let collectionName = datasource.collection || datasource.table;
+					let collection = db.collection(collectionName);
+
+					let query = args.query || {};
+
+					if (query._id) {
+						query._id = new ObjectID(query._id);
+					}
+
+					let resolvedFind = this._resolveFind(query);
+
+					return collection.count(resolvedFind);
 				})
 				.then(res => {
 					resolve(res);
