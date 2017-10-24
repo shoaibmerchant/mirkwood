@@ -21,6 +21,11 @@ class Database {
 		return dbConnection.all(datasource, args);
 	}
 
+	static count = (datasource, args) => {
+		let dbConnection = Database.getConnection(datasource);
+		return dbConnection.count(datasource, args);
+	}
+
 	static create = (datasource, row, args) => {
 		let dbConnection = Database.getConnection(datasource);
 		return dbConnection.create(datasource, row, args);

@@ -38,6 +38,13 @@ class DatabaseQueries {
               type: inputType
             }
 					}
+				}),
+				count: this.countResolver('database.count', type, model, {
+					args: {
+            query: {
+              type: inputType
+            }
+					}
 				})
 			}
 		});
@@ -69,6 +76,25 @@ class DatabaseQueries {
 			args: argsObjects,
       resolve: new Resolver(resolverName, (_, args) => {
         return Database.all(modelDatasource, args);
+      })
+		};
+  }
+
+	countResolver(resolverName, type, model, inputSchema) {
+    let modelDatasource = model.schema.datasource;
+		let args = inputSchema.args;
+
+    args = {
+      ...args
+    };
+
+    let argsObjects = Types.generateArgs(args, inputSchema.name);
+
+		return {
+			type: Types.Int,
+			args: argsObjects,
+      resolve: new Resolver(resolverName, (_, args) => {
+        return Database.count(modelDatasource, args);
       })
 		};
   }
