@@ -31,18 +31,20 @@ class HttpUtility {
 
     if (!args.headers) {
       args.headers = {
-        fields: {
-          ContentType: {
-            type: Types.String,
-            defaultValue: 'application/json'
-          },
-          UserAgent: {
-            type: Types.String
-          },
-          Authorization: {
-            type: Types.String
-          }
-        }
+				type: {
+					fields: {
+	          ContentType: {
+	            type: Types.String,
+	            defaultValue: 'application/json'
+	          },
+	          UserAgent: {
+	            type: Types.String
+	          },
+	          Authorization: {
+	            type: Types.String
+	          }
+	        }
+				}
       };
     }
 

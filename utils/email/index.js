@@ -22,25 +22,27 @@ class EmailUtility {
 				required: true
 			},
 			options: {
-	      fields: {
-					to: {
-						type: Types.String,
-						required: true
-					},
-	        subject: {
-	          type: Types.String,
-	          required: true
-	        },
-	        from: {
-	          type: Types.String,
-	        },
-	        cc: {
-	          type: Types.String
-	        },
-	        bcc: {
-	          type: Types.String
-	        }
-	      }
+	      type: {
+					fields: {
+						to: {
+							type: Types.String,
+							required: true
+						},
+		        subject: {
+		          type: Types.String,
+		          required: true
+		        },
+		        from: {
+		          type: Types.String,
+		        },
+		        cc: {
+		          type: Types.String
+		        },
+		        bcc: {
+		          type: Types.String
+		        }
+		      }
+				}
 	    }
 		};
 
