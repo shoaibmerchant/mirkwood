@@ -34,14 +34,14 @@ class DatabaseQueries {
 				}),
         all: this.allResolver('database.all', type, model, {
 					args: {
-            query: {
+            find: {
               type: inputType
             }
 					}
 				}),
 				count: this.countResolver('database.count', type, model, {
 					args: {
-            query: {
+            find: {
               type: inputType
             }
 					}

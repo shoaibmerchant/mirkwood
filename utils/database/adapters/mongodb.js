@@ -33,13 +33,13 @@ class MongoDbDatabaseAdapter {
 					let collectionName = datasource.collection || datasource.table;
 					let collection = db.collection(collectionName);
 
-					let query = args.query || {};
+					let find = args.find || {};
 
-					if (query._id) {
-						query._id = new ObjectID(query._id);
+					if (find._id) {
+						find._id = new ObjectID(find._id);
 					}
 
-					let resolvedFind = this._resolveFind(query);
+					let resolvedFind = this._resolveFind(find);
 
 					args.sort = args.sort ? args.sort : {};
 					let sort = [ args.sort.field || false, args.sort.order === 'asc' ? 1: -1 ];
@@ -62,14 +62,13 @@ class MongoDbDatabaseAdapter {
 					let collectionName = datasource.collection || datasource.table;
 					let collection = db.collection(collectionName);
 
-					let query = args.query || {};
+					let find = args.find || {};
 
-					if (query._id) {
-						query._id = new ObjectID(query._id);
+					if (find._id) {
+						find._id = new ObjectID(find._id);
 					}
 
-					let resolvedFind = this._resolveFind(query);
-
+					let resolvedFind = this._resolveFind(find);
 					return collection.count(resolvedFind);
 				})
 				.then(res => {
@@ -93,8 +92,8 @@ class MongoDbDatabaseAdapter {
 						find._id = new ObjectID(find._id);
 					}
 
-					let resolvedFind = this._resolveFind(query);
-					return collection.findOne(find);
+					let resolvedFind = this._resolveFind(find);
+					return collection.findOne(resolvedFind);
 				})
 				.then(res => {
 					resolve(res);
