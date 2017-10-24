@@ -1,7 +1,7 @@
 import mongodb from 'mongodb';
-
 const MongoClient = mongodb.MongoClient;
 const ObjectID = mongodb.ObjectID;
+import { mapValues } from 'lodash';
 
 class MongoDbDatabaseAdapter {
 
@@ -13,6 +13,19 @@ class MongoDbDatabaseAdapter {
 		return `mongodb://${connection.host}:${connection.port}/${connection.database}`;
 	}
 
+	_resolveFind = (find) => {
+		let findQuery = {...find};
+
+		return mapValues(findQuery, (query) => {
+			if (Array.isArray(query)) {
+				query = {
+					$in: query
+				}
+			}
+			return query;
+		});
+	}
+
 	all = (datasource, args) => {
 		let dbPromise = new Promise((resolve, reject) => {
 			this.db
@@ -21,9 +34,11 @@ class MongoDbDatabaseAdapter {
 					let collection = db.collection(collectionName);
 
 					let query = args.query || {};
+					let resolvedFind = this._resolveFind(query);
+
 					args.sort = args.sort ? args.sort : {};
 					let sort = [ args.sort.field || false, args.sort.order === 'asc' ? 1: -1 ];
-					return collection.find(query).sort(sort).skip(args.skip).limit(args.limit).toArray();
+					return collection.find(resolvedFind).sort(sort).skip(args.skip).limit(args.limit).toArray();
 				})
 				.then(res => {
 					resolve(res);
@@ -45,6 +60,8 @@ class MongoDbDatabaseAdapter {
 					if (find._id) {
 						find._id = new ObjectID(find._id);
 					}
+
+					let resolvedFind = this._resolveFind(query);
 					return collection.findOne(find);
 				})
 				.then(res => {
