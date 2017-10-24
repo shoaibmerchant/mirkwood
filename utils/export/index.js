@@ -60,12 +60,10 @@ class ExportUtility {
 						let ws = fs.createWriteStream(filepath);
 
 						ws.on('error', function(){
-						  console.log('Error');
 							reject(false);
 						});
 
 						ws.on('finish', function(){
-						  console.log('done');
 							resolve(true);
 						});
 
