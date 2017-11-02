@@ -36,7 +36,10 @@ class DatabaseQueries {
 					args: {
             find: {
               type: inputType
-            }
+            },
+						query: {
+							type: this.generateQueryType(type, inputType, model)
+						}
 					}
 				}),
 				count: this.countResolver('database.count', type, model, {
@@ -48,6 +51,76 @@ class DatabaseQueries {
 				})
 			}
 		});
+	}
+
+	generateQueryFieldsType(type, inputType, model) {
+		let schema = model.schema;
+
+		let modelDatasource = schema.datasource
+		let modelName = schema.name;
+
+		let queryFieldsTypeName = [modelName, 'Fields'].join('_');
+		let queryFieldsTypeFields = {};
+
+		for (let key of Object.keys(schema.fields)) {
+			let field = schema.fields[key];
+
+			if (field.resolve) {
+				continue;
+			}
+
+			queryFieldsTypeFields[key] = {
+				type: Types.generateInputType({
+					name: [queryFieldsTypeName, key].join('_'),
+					fields: {
+						operator: {
+							type: Types.OperatorType
+						},
+						value: {
+							type: field.type
+						}
+					}
+				})
+			};
+		}
+
+		return Types.generateInputType({
+		  name: queryFieldsTypeName,
+		  fields: queryFieldsTypeFields
+		});
+	}
+
+	generateQueryType(type, inputType, model) {
+		let schema = model.schema;
+
+		let modelDatasource = schema.datasource
+		let modelName = schema.name;
+
+		let queryTypeName = [modelName, 'QueryType'].join('_');
+
+		// fetch if exists
+		if (Types.get(queryTypeName)) {
+			return Types.get(queryTypeName);
+		}
+
+		let queryType = new GraphQLInputObjectType({
+		  name: queryTypeName,
+		  fields: () => ({
+				fields: {
+					type: this.generateQueryFieldsType(type, inputType, model)
+				},
+		    and: {
+		      type: new GraphQLList(queryType)
+		    },
+				or: {
+		      type: new GraphQLList(queryType)
+		    }
+		  })
+		});
+
+		// store for future refs
+		Types.store(queryTypeName, queryType);
+		return queryType;
 	}
 
   allResolver(resolverName, type, model, inputSchema) {

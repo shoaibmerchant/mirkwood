@@ -1,7 +1,7 @@
 import mongodb from 'mongodb';
 const MongoClient = mongodb.MongoClient;
 const ObjectID = mongodb.ObjectID;
-import { mapValues } from 'lodash';
+import { map, keys, values, mapValues } from 'lodash';
 
 class MongoDbDatabaseAdapter {
 
@@ -13,6 +13,48 @@ class MongoDbDatabaseAdapter {
 		return `mongodb://${connection.host}:${connection.port}/${connection.database}`;
 	}
 
+	_resolveQuery = (query) => {
+		if (query.and) {
+			return {
+				$and: map(query.and, (subQuery) => {
+					return this._resolveQuery(subQuery)
+				})
+			}
+		}
+		if (query.or) {
+			return {
+				$or: map(query.or, (subQuery) => {
+					return this._resolveQuery(subQuery)
+				})
+			}
+		}
+
+		let keyCount = keys(query.fields).length;
+		let resolvedSubQueries = [];
+
+		for (let key of Object.keys(query.fields)) {
+			let subQuery = query.fields[key];
+
+			if (subQuery.operator === '$exists') {
+				subQuery.value = true;
+			}
+
+			let resolvedSubQuery = {};
+			resolvedSubQuery[key] = {};
+			resolvedSubQuery[key][subQuery.operator] = subQuery.value;
+
+			if (keyCount === 1) {
+				return resolvedSubQuery;
+			} else {
+				resolvedSubQueries.push(resolvedSubQuery);
+			}
+		}
+
+		return {
+			$and: resolvedSubQueries
+		};
+
+	}
 	_resolveFind = (find) => {
 		let findQuery = {...find};
 
@@ -33,13 +75,20 @@ class MongoDbDatabaseAdapter {
 					let collectionName = datasource.collection || datasource.table;
 					let collection = db.collection(collectionName);
 
+					// resolve find arg
 					let find = args.find || {};
-
 					if (find._id) {
 						find._id = new ObjectID(find._id);
 					}
-
 					let resolvedFind = this._resolveFind(find);
+
+					// resolve query arg
+					let query = args.query || false;
+
+					// override resovledFind if query is specified
+					if (args.query) {
+						resolvedFind = this._resolveQuery(query);
+					}
 
 					args.sort = args.sort ? args.sort : {};
 					let sort = [ args.sort.field || false, args.sort.order === 'asc' ? 1: -1 ];
