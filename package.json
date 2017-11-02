@@ -1,6 +1,6 @@
 {
   "name": "mirkwood",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "GraphQL based Rapid Server-side Development framework",
   "main": "dist/index.js",
   "scripts": {
@@ -16,6 +16,7 @@
     "apollo-server-express": "^1.0.5",
     "body-parser": "^1.18.2",
     "connect-redis": "^3.3.2",
+    "cors": "^2.8.4",
     "express": "^4.15.3",
     "express-session": "^1.15.6",
     "fast-csv": "^2.4.1",
