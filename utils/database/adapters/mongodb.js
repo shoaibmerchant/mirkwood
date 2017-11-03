@@ -28,12 +28,31 @@ class MongoDbDatabaseAdapter {
 				})
 			}
 		}
+		if (query.not) {
+			return {
+				$not: map(query.or, (subQuery) => {
+					return this._resolveQuery(subQuery)
+				})
+			}
+		}
+		if (query.nor) {
+			return {
+				$nor: map(query.or, (subQuery) => {
+					return this._resolveQuery(subQuery)
+				})
+			}
+		}
 
 		let keyCount = keys(query.fields).length;
 		let resolvedSubQueries = [];
 
 		for (let key of Object.keys(query.fields)) {
 			let subQuery = query.fields[key];
+			let subQueryValue = subQuery.value;
+
+			if (subQuery.operator === '$in' && Array.isArray(subQuery.values)) {
+				subQueryValue = subQuery.values;
+			}
 
 			if (subQuery.operator === '$exists') {
 				subQuery.value = true;
@@ -41,7 +60,7 @@ class MongoDbDatabaseAdapter {
 
 			let resolvedSubQuery = {};
 			resolvedSubQuery[key] = {};
-			resolvedSubQuery[key][subQuery.operator] = subQuery.value;
+			resolvedSubQuery[key][subQuery.operator] = subQueryValue;
 
 			if (keyCount === 1) {
 				return resolvedSubQuery;
