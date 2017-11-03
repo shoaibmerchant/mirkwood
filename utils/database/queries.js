@@ -69,9 +69,11 @@ class DatabaseQueries {
 				continue;
 			}
 
+			let queryFieldsTypeFieldsName = [queryFieldsTypeName, key].join('_')
+
 			queryFieldsTypeFields[key] = {
 				type: Types.generateInputType({
-					name: [queryFieldsTypeName, key].join('_'),
+					name: queryFieldsTypeFieldsName,
 					fields: {
 						operator: {
 							type: Types.OperatorType
@@ -81,6 +83,17 @@ class DatabaseQueries {
 						},
 						values: {
 							type: Types.generateInputType([field.type])
+						},
+						options: {
+							type: {
+								name: [queryFieldsTypeFieldsName, 'options'].join('_'),
+								fields: {
+									match: {
+										type: Types.String,
+										description: "Specifiy additional options to pass for regular expression matching"
+									}
+								}
+							}
 						}
 					}
 				})
