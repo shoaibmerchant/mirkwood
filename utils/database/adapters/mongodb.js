@@ -62,6 +62,11 @@ class MongoDbDatabaseAdapter {
 			resolvedSubQuery[key] = {};
 			resolvedSubQuery[key][subQuery.operator] = subQueryValue;
 
+			// add support for regex options
+			if (subQuery.operator === '$regex' && subQuery.options && subQuery.options.match) {
+				resolvedSubQuery[key]['$options'] = subQuery.options.match;
+			}
+
 			if (keyCount === 1) {
 				return resolvedSubQuery;
 			} else {
