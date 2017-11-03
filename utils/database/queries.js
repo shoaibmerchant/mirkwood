@@ -53,7 +53,7 @@ class DatabaseQueries {
 		});
 	}
 
-	generateQueryFieldsType(type, inputType, model) {
+	generateQueryFieldsType(type, inputType, model, isList) {
 		let schema = model.schema;
 
 		let modelDatasource = schema.datasource
@@ -78,6 +78,9 @@ class DatabaseQueries {
 						},
 						value: {
 							type: field.type
+						},
+						values: {
+							type: Types.generateInputType([field.type])
 						}
 					}
 				})
@@ -114,7 +117,13 @@ class DatabaseQueries {
 		    },
 				or: {
 		      type: new GraphQLList(queryType)
-		    }
+		    },
+				not: {
+					type: new GraphQLList(queryType)
+				},
+				nor: {
+					type: new GraphQLList(queryType)
+				}
 		  })
 		});
 
