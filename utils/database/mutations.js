@@ -33,6 +33,13 @@ class DatabaseMutations {
 						}
 					}
 				}),
+				createMany: this.createResolver('database.create', type, model, {
+					args: {
+						input: {
+							type: [inputType]
+						}
+					}
+				}),
 				update: this.updateResolver('database.update', type, model, {
 					args: {
 						_id: {
@@ -60,15 +67,24 @@ class DatabaseMutations {
 		let argsObjects = Types.generateArgs(args, inputSchema.name);
 
 		return {
-			type: type,
+			type: Array.isArray(args.input.type) ? Types.Int : type,
 			args: argsObjects,
 			resolve: new Resolver(resolverName, (_, args) => {
 				let input = args.input; // take first property
 				let result = new Promise((resolve, reject) => {
-					Database.create(modelDatasource, input)
-						.then(id => {
-							resolve(Database.one(modelDatasource, id));
-						});
+
+					if (Array.isArray(input)) {
+						Database.createMany(modelDatasource, input)
+							.then(count => {
+								resolve(count);
+							});
+					} else {
+						Database.create(modelDatasource, input)
+							.then(id => {
+								resolve(Database.one(modelDatasource, id));
+							});
+					}
+
 				})
 				return result;
 			})

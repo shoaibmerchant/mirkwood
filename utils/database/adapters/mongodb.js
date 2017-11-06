@@ -224,6 +224,25 @@ class MongoDbDatabaseAdapter {
 		return dbPromise;
 	}
 
+	createMany = (datasource, documents, args) => {
+		let dbPromise = new Promise((resolve, reject) => {
+			this.db
+				.then(db => {
+					let collectionName = datasource.collection || datasource.table;
+					let collection = db.collection(collectionName);
+
+					return collection.insertMany(documents);
+				})
+				.then(res => {
+					resolve(res.insertedCount);
+				})
+				.catch(err => {
+					reject(err);
+				})
+		});
+		return dbPromise;
+	}
+
 	update = (datasource, find, document, args) => {
 		let dbPromise = new Promise((resolve, reject) => {
 			this.db
