@@ -31,6 +31,11 @@ class Database {
 		return dbConnection.create(datasource, row, args);
 	}
 
+	static createMany = (datasource, rows, args) => {
+		let dbConnection = Database.getConnection(datasource);
+		return dbConnection.createMany(datasource, rows, args);
+	}
+
 	static update = (datasource, find, row, args) => {
 		let dbConnection = Database.getConnection(datasource);
 		return dbConnection.update(datasource, find, row, args);
