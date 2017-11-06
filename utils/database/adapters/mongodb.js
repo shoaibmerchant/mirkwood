@@ -1,6 +1,7 @@
 import mongodb from 'mongodb';
 const MongoClient = mongodb.MongoClient;
 const ObjectID = mongodb.ObjectID;
+import flatten from 'flat';
 import { map, keys, values, mapValues } from 'lodash';
 
 class MongoDbDatabaseAdapter {
@@ -81,6 +82,9 @@ class MongoDbDatabaseAdapter {
 	}
 	_resolveFind = (find) => {
 		let findQuery = {...find};
+
+		// flatten all keys
+		findQuery = flatten(findQuery);
 
 		return mapValues(findQuery, (query) => {
 			if (Array.isArray(query)) {
