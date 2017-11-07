@@ -105,10 +105,11 @@ class MongoDbDatabaseAdapter {
 
 					// resolve find arg
 					let find = args.find || {};
-					if (find._id) {
-						find._id = new ObjectID(find._id);
-					}
 					let resolvedFind = this._resolveFind(find);
+
+					if (resolvedFind._id) {
+						resolvedFind._id = new ObjectID(resolvedFind._id);
+					}
 
 					// resolve query arg
 					let query = args.query || false;
@@ -140,12 +141,12 @@ class MongoDbDatabaseAdapter {
 					let collection = db.collection(collectionName);
 
 					let find = args.find || {};
+					let resolvedFind = this._resolveFind(find);
 
-					if (find._id) {
-						find._id = new ObjectID(find._id);
+					if (resolvedFind._id) {
+						resolvedFind._id = new ObjectID(resolvedFind._id);
 					}
 
-					let resolvedFind = this._resolveFind(find);
 					return collection.count(resolvedFind);
 				})
 				.then(res => {
@@ -165,11 +166,12 @@ class MongoDbDatabaseAdapter {
 					let collectionName = datasource.collection || datasource.table;
 					let collection = db.collection(collectionName);
 
-					if (find._id) {
-						find._id = new ObjectID(find._id);
+					let resolvedFind = this._resolveFind(find);
+
+					if (resolvedFind._id) {
+						resolvedFind._id = new ObjectID(resolvedFind._id);
 					}
 
-					let resolvedFind = this._resolveFind(find);
 					return collection.findOne(resolvedFind);
 				})
 				.then(res => {
