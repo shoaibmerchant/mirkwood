@@ -24,15 +24,18 @@
     "graphql": "^0.10.5",
     "graphql-tools": "^1.1.0",
     "html-to-text": "^3.3.0",
+    "knex": "^0.14.0",
     "lodash": "^4.17.4",
     "mkdirp": "^0.5.1",
     "mongodb": "^2.2.30",
     "nodemailer": "^4.1.1",
+    "pg": "^7.4.0",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
     "session-file-store": "^1.1.2",
     "sha1": "^1.1.1",
-    "twig": "^1.10.5"
+    "twig": "^1.10.5",
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",

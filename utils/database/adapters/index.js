@@ -1,7 +1,9 @@
 import mongodb from './mongodb';
+import postgresql from './postgresql';
 
 const adapters = {
-	mongodb
+	mongodb,
+	postgresql
 };
 
 export default adapters;
