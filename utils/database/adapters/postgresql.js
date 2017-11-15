@@ -19,17 +19,123 @@ class PostgresqlDatabaseAdapter {
     });
 	}
 
-	_resolveQuery = (query) => {
-
+	_operatorMatch(operator) {
+		switch(operator) {
+			case '$eq':
+				return '=';
+			case '$gt':
+				return '>';
+			case '$gte':
+				return '>=';
+			case '$lt':
+				return '<';
+			case '$lte':
+				return '<=';
+			case '$like':
+				return 'like';
+		}
 	}
-	_resolveFind = (find) => {
+	_resolveQuery(query, queryBuilder) {
+		// if (query.and) {
+		// 	return {
+		// 		$and: map(query.and, (subQuery) => {
+		// 			return this._resolveQuery(subQuery)
+		// 		})
+		// 	}
+		// }
+		// if (query.or) {
+		// 	return {
+		// 		$or: map(query.or, (subQuery) => {
+		// 			return this._resolveQuery(subQuery)
+		// 		})
+		// 	}
+		// }
+		// if (query.not) {
+		// 	return {
+		// 		$not: map(query.or, (subQuery) => {
+		// 			return this._resolveQuery(subQuery)
+		// 		})
+		// 	}
+		// }
+		// if (query.nor) {
+		// 	return {
+		// 		$nor: map(query.or, (subQuery) => {
+		// 			return this._resolveQuery(subQuery)
+		// 		})
+		// 	}
+		// }
 
+		let keyCount = keys(query.fields).length;
+		let resolvedSubQueries = [];
+
+		for (let key of Object.keys(query.fields)) {
+			let subQuery = query.fields[key];
+			let subQueryValue = subQuery.value;
+
+			if (subQuery.operator === '$in' && Array.isArray(subQuery.values)) {
+				queryBuilder.whereIn(key, subQuery.values);
+			} else if(subQuery.operator === '$exists') {
+				queryBuilder.whereNotNull(key);
+			} else {
+				queryBuilder.where(key, this._operatorMatch(subQuery.operator), subQueryValue);
+			}
+
+			// if (subQuery.operator === '$in' && Array.isArray(subQuery.values)) {
+			// 	subQueryValue = subQuery.values;
+			// }
+			//
+			// if (subQuery.operator === '$exists') {
+			// 	subQuery.value = true;
+			// }
+			//
+			// let resolvedSubQuery = {};
+			// resolvedSubQuery[key] = {};
+			// resolvedSubQuery[key][subQuery.operator] = subQueryValue;
+			//
+			// // add support for regex options
+			// if (subQuery.operator === '$regex' && subQuery.options && subQuery.options.match) {
+			// 	resolvedSubQuery[key]['$options'] = subQuery.options.match;
+			// }
+			//
+			// if (keyCount === 1) {
+			// 	return resolvedSubQuery;
+			// } else {
+			// 	resolvedSubQueries.push(resolvedSubQuery);
+			// }
+		}
 	}
 
-	all = (datasource, args) => {
+	_resolveFind(find, queryBuilder) {
+		for(let key of Object.keys(find)) {
+			if(Array.isArray(find[key])) {
+				queryBuilder.whereIn(key, find[key]);
+			} else {
+				queryBuilder.where(key, find[key]);
+			}
+		}
+	}
+
+	all(datasource, args) {
+		let self = this;
 		let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
+
       this.db.select().table(tableName)
+        .modify(function(queryBuilder) {
+					if (args.find) {
+						self._resolveFind(args.find, queryBuilder)
+					}
+
+					if (args.query) {
+						self._resolveQuery(args.query, queryBuilder)
+					}
+
+					if (args.sort) {
+            queryBuilder.orderBy(args.sort.field, args.sort.order);
+          }
+        })
+        .limit(args.limit)
+        .offset(args.skip)
         .then((res) => {
           resolve(res);
         })
@@ -40,7 +146,7 @@ class PostgresqlDatabaseAdapter {
 		return dbPromise;
 	}
 
-	count = (datasource, args) => {
+	count(datasource, args) {
 		let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
@@ -55,7 +161,7 @@ class PostgresqlDatabaseAdapter {
 		return dbPromise;
 	}
 
-	one = (datasource, find, args) => {
+	one(datasource, find, args) {
     let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
@@ -70,7 +176,7 @@ class PostgresqlDatabaseAdapter {
 		return dbPromise;
 	}
 
-	destroy = (datasource, find, args) => {
+	destroy(datasource, find, args) {
 		let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
@@ -83,7 +189,7 @@ class PostgresqlDatabaseAdapter {
 		return dbPromise;
 	}
 
-	create = (datasource, row, args) => {
+	create(datasource, row, args) {
 		let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
@@ -99,7 +205,7 @@ class PostgresqlDatabaseAdapter {
 		return dbPromise;
 	}
 
-	createMany = (datasource, rows, args) => {
+	createMany(datasource, rows, args) {
 		let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
@@ -115,7 +221,7 @@ class PostgresqlDatabaseAdapter {
 		return dbPromise;
 	}
 
-	update = (datasource, find, row, args) => {
+	update(datasource, find, row, args) {
     let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
