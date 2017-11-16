@@ -82,7 +82,8 @@ class DatabaseQueries {
 							type: field.type
 						},
 						values: {
-							type: Types.generateInputType([field.type])
+							type: Types.generateInputType([field.type]),
+							defaultValue: []
 						},
 						options: {
 							type: {
