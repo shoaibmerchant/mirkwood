@@ -21,7 +21,7 @@ class Email {
             to: to,
             cc: cc,
             bcc: bcc,
-            subject: subject || 'New Mailer',
+            subject: subject || 'New Mail',
             text: htmlToText.fromString(html),
             html: html
           };

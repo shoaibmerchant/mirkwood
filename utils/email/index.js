@@ -25,7 +25,7 @@ class EmailUtility {
 	      type: {
 					fields: {
 						to: {
-							type: Types.String,
+							type: [Types.String],
 							required: true
 						},
 		        subject: {
@@ -36,10 +36,10 @@ class EmailUtility {
 		          type: Types.String,
 		        },
 		        cc: {
-		          type: Types.String
+		          type: [Types.String]
 		        },
 		        bcc: {
-		          type: Types.String
+		          type: [Types.String]
 		        }
 		      }
 				}
