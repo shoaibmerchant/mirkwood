@@ -49,6 +49,14 @@ class MongoDbDatabaseAdapter {
 
 		for (let key of Object.keys(query.fields)) {
 			let subQuery = query.fields[key];
+
+			if (key === '_id') {
+				subQuery.value = new ObjectID(subQuery.value);
+				subQuery.values = subQuery.values.map((value) => {
+					return new ObjectID(value);
+				})
+			}
+
 			let subQueryValue = subQuery.value;
 
 			if (subQuery.operator === '$in' && Array.isArray(subQuery.values)) {
@@ -122,6 +130,7 @@ class MongoDbDatabaseAdapter {
 					if (args.query) {
 						resolvedFind = this._resolveQuery(query);
 					}
+					console.log(resolvedFind);
 
 					args.sort = args.sort ? args.sort : {};
 					let sort = [ args.sort.field || false, args.sort.order === 'asc' ? 1: -1 ];
