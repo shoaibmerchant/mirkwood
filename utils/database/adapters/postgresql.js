@@ -23,6 +23,8 @@ class PostgresqlDatabaseAdapter {
 		switch(operator) {
 			case '$eq':
 				return '=';
+			case '$ne':
+				return '!=';
 			case '$gt':
 				return '>';
 			case '$gte':

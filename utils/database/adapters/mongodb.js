@@ -31,7 +31,7 @@ class MongoDbDatabaseAdapter {
 		}
 		if (query.not) {
 			return {
-				$not: map(query.or, (subQuery) => {
+				$not: map(query.not, (subQuery) => {
 					return this._resolveQuery(subQuery)
 				})
 			}
@@ -130,7 +130,6 @@ class MongoDbDatabaseAdapter {
 					if (args.query) {
 						resolvedFind = this._resolveQuery(query);
 					}
-					console.log(resolvedFind);
 
 					args.sort = args.sort ? args.sort : {};
 					let sort = [ args.sort.field || false, args.sort.order === 'asc' ? 1: -1 ];
