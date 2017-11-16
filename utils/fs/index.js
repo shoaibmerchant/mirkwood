@@ -49,12 +49,12 @@ class FsUtility {
 				return new Promise((resolve, reject) => {
 					mkdirp(args.dir, { mode: '0750' }, (err) => {
             if (err) {
-              reject(false);
+              reject(err);
 							return;
             }
 						fs.writeFile(filepath, data, (err) => {
 	            if (err) {
-	              reject(false);
+	              reject(err);
 	            } else {
 	              resolve(true);
 	            }
@@ -65,6 +65,87 @@ class FsUtility {
 		};
 	}
 
+	copyResolver(resolverName, type, model, inputSchema) {
+		let args = inputSchema.args;
+
+		args = {
+			cwd: {
+				type: Types.String,
+				defaultValue: 'tmp'
+			},
+			src: {
+				type: Types.String,
+				required: true
+			},
+			dest: {
+				type: Types.String,
+				required: true
+			},
+			...args
+		};
+
+		let argsObjects = Types.generateArgs(args, inputSchema.name);
+
+		return {
+			type: type || Types.Boolean,
+			args: argsObjects,
+			resolve: new Resolver(resolverName, (_, args, ctx) => {
+				let src = path.resolve(args.cwd, args.src);
+				let dest = path.resolve(args.cwd, args.dest);
+
+				return new Promise((resolve, reject) => {
+					fs.copyFile(src, dest, (err) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(true);
+            }
+          });
+        });
+			})
+		};
+	}
+
+	renameResolver(resolverName, type, model, inputSchema) {
+		let args = inputSchema.args;
+
+		args = {
+			cwd: {
+				type: Types.String,
+				defaultValue: 'tmp'
+			},
+			path: {
+				type: Types.String,
+				required: true
+			},
+			newPath: {
+				type: Types.String,
+				required: true
+			},
+			...args
+		};
+
+		let argsObjects = Types.generateArgs(args, inputSchema.name);
+
+		return {
+			type: type || Types.Boolean,
+			args: argsObjects,
+			resolve: new Resolver(resolverName, (_, args, ctx) => {
+				let oldPath = path.resolve(args.cwd, args.path);
+				let newPath = path.resolve(args.cwd, args.newPath);
+
+				return new Promise((resolve, reject) => {
+					fs.rename(oldPath, newPath, (err) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(true);
+            }
+          });
+        });
+			})
+		};
+	}
 
 	mkdirResolver(resolverName, type, model, inputSchema) {
 		let args = inputSchema.args;
@@ -97,7 +178,7 @@ class FsUtility {
 				return new Promise((resolve, reject) => {
           mkdirp(dirpath, { mode: mode }, (err) => {
             if (err) {
-              reject(false);
+              reject(err);
             } else {
               resolve(true);
             }
@@ -151,7 +232,7 @@ class FsUtility {
         return new Promise((resolve, reject) => {
           fs.access(filepath, mode, (err) => {
             if (err) {
-              reject(false);
+              reject(err);
             } else {
               resolve(true);
             }
@@ -190,7 +271,7 @@ class FsUtility {
 							if (err.code === 'ENOENT') {
 								resolve(false);
 							}
-              reject(false);
+              reject(err);
             } else {
               resolve(true);
             }
@@ -247,6 +328,12 @@ class FsUtility {
 					args: {}
 				}),
 				mkdir: this.mkdirResolver('fs.mkdir', Types.Boolean, model, {
+					args: {}
+				}),
+				rename: this.renameResolver('fs.rename', Types.Boolean, model, {
+					args: {}
+				}),
+				copy: this.copyResolver('fs.copy', Types.Boolean, model, {
 					args: {}
 				})
 			}

@@ -4,5 +4,6 @@ import EmailUtility from './email';
 import HttpUtility from './http';
 import FsUtility from './fs';
 import ExportUtility from './export';
+import AWSS3Utility from './awsS3';
 
-export { DatabaseUtility, SessionUtility, EmailUtility, HttpUtility, FsUtility, ExportUtility };
+export { DatabaseUtility, SessionUtility, EmailUtility, HttpUtility, FsUtility, ExportUtility, AWSS3Utility };
