@@ -46,7 +46,10 @@ class DatabaseQueries {
 					args: {
             find: {
               type: inputType
-            }
+            },
+						query: {
+							type: this.generateQueryType(type, inputType, model)
+						}
 					}
 				})
 			}
