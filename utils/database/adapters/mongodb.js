@@ -159,6 +159,14 @@ class MongoDbDatabaseAdapter {
 						resolvedFind._id = new ObjectID(resolvedFind._id);
 					}
 
+					// resolve query arg
+					let query = args.query || false;
+
+					// override resovledFind if query is specified
+					if (args.query) {
+						resolvedFind = this._resolveQuery(query);
+					}
+
 					return collection.count(resolvedFind);
 				})
 				.then(res => {

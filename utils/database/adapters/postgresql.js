@@ -137,10 +137,21 @@ class PostgresqlDatabaseAdapter {
 	}
 
 	count(datasource, args) {
+		let self = this;
+
 		let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
       this.db.select().count().table(tableName)
+				.modify(function(queryBuilder) {
+					if (args.find) {
+						self._resolveFind(args.find, queryBuilder)
+					}
+
+					if (args.query) {
+						self._resolveQuery(args.query, queryBuilder)
+					}
+				})
         .then((res) => {
           resolve(res[0].count);
         })
