@@ -1,6 +1,6 @@
 {
   "name": "mirkwood",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "GraphQL based Rapid Server-side Development framework",
   "main": "dist/index.js",
   "scripts": {
@@ -22,6 +22,7 @@
     "express-session": "^1.15.6",
     "fast-csv": "^2.4.1",
     "flat": "^4.0.0",
+    "gm": "^1.23.0",
     "graphql": "^0.10.5",
     "graphql-tools": "^1.1.0",
     "html-to-text": "^3.3.0",

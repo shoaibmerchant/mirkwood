@@ -5,5 +5,6 @@ import HttpUtility from './http';
 import FsUtility from './fs';
 import ExportUtility from './export';
 import AWSS3Utility from './awsS3';
+import ImageUtility from './image';
 
-export { DatabaseUtility, SessionUtility, EmailUtility, HttpUtility, FsUtility, ExportUtility, AWSS3Utility };
+export { DatabaseUtility, SessionUtility, EmailUtility, HttpUtility, FsUtility, ExportUtility, AWSS3Utility, ImageUtility };
