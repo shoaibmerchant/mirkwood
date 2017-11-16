@@ -77,14 +77,16 @@ class DatabaseMutations {
 						Database.createMany(modelDatasource, input)
 							.then(count => {
 								resolve(count);
-							});
+							})
+							.catch(reject);
 					} else {
 						Database.create(modelDatasource, input)
-							.then(id => {
-								resolve(Database.one(modelDatasource, id));
-							});
+							.then(res => {
+								console.log(res);
+								resolve(res);
+							})
+							.catch(reject);
 					}
-
 				})
 				return result;
 			})

@@ -10,11 +10,11 @@ class MongoDbDatabaseAdapter {
 		this.db = MongoClient.connect(this._uri(connection));
 	}
 
-	_uri = (connection) => {
+	_uri(connection) {
 		return `mongodb://${connection.host}:${connection.port}/${connection.database}`;
 	}
 
-	_resolveQuery = (query) => {
+	_resolveQuery(query) {
 		if (query.and) {
 			return {
 				$and: map(query.and, (subQuery) => {
@@ -55,6 +55,10 @@ class MongoDbDatabaseAdapter {
 				subQueryValue = subQuery.values;
 			}
 
+			if (subQuery.operator === '$nin' && Array.isArray(subQuery.values)) {
+				subQueryValue = subQuery.values;
+			}
+
 			if (subQuery.operator === '$exists') {
 				subQuery.value = true;
 			}
@@ -80,7 +84,7 @@ class MongoDbDatabaseAdapter {
 		};
 
 	}
-	_resolveFind = (find) => {
+	_resolveFind(find) {
 		let findQuery = {...find};
 
 		// flatten all keys
@@ -96,7 +100,7 @@ class MongoDbDatabaseAdapter {
 		});
 	}
 
-	all = (datasource, args) => {
+	all(datasource, args) {
 		let dbPromise = new Promise((resolve, reject) => {
 			this.db
 				.then(db => {
@@ -133,7 +137,7 @@ class MongoDbDatabaseAdapter {
 		return dbPromise;
 	}
 
-	count = (datasource, args) => {
+	count(datasource, args) {
 		let dbPromise = new Promise((resolve, reject) => {
 			this.db
 				.then(db => {
@@ -159,7 +163,7 @@ class MongoDbDatabaseAdapter {
 		return dbPromise;
 	}
 
-	one = (datasource, find, args) => {
+	one(datasource, find, args) {
 		let dbPromise = new Promise((resolve, reject) => {
 			this.db
 				.then(db => {
@@ -184,7 +188,7 @@ class MongoDbDatabaseAdapter {
 		return dbPromise;
 	}
 
-	destroy = (datasource, find, args) => {
+	destroy(datasource, find, args) {
 		let dbPromise = new Promise((resolve, reject) => {
 			this.db
 				.then(db => {
@@ -212,25 +216,25 @@ class MongoDbDatabaseAdapter {
 	}
 
 	create = (datasource, document, args) => {
+		let self = this;
 		let dbPromise = new Promise((resolve, reject) => {
 			this.db
 				.then(db => {
 					let collectionName = datasource.collection || datasource.table;
 					let collection = db.collection(collectionName);
 
-					return collection.insertOne(document);
+					return collection.insertOne(document)
 				})
 				.then(res => {
-					resolve(res.insertedId);
+					return self.one(datasource, { _id: res.insertedId.toString() });
 				})
-				.catch(err => {
-					reject(err);
-				})
+				.then(resolve)
+				.catch(reject);
 		});
 		return dbPromise;
 	}
 
-	createMany = (datasource, documents, args) => {
+	createMany(datasource, documents, args) {
 		let dbPromise = new Promise((resolve, reject) => {
 			this.db
 				.then(db => {
@@ -249,7 +253,7 @@ class MongoDbDatabaseAdapter {
 		return dbPromise;
 	}
 
-	update = (datasource, find, document, args) => {
+	update(datasource, find, document, args) {
 		let dbPromise = new Promise((resolve, reject) => {
 			this.db
 				.then(db => {
