@@ -55,6 +55,10 @@ class MongoDbDatabaseAdapter {
 				subQueryValue = subQuery.values;
 			}
 
+			if (subQuery.operator === '$nin' && Array.isArray(subQuery.values)) {
+				subQueryValue = subQuery.values;
+			}
+
 			if (subQuery.operator === '$exists') {
 				subQuery.value = true;
 			}

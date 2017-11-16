@@ -133,9 +133,6 @@ class DatabaseQueries {
 		    },
 				not: {
 					type: new GraphQLList(queryType)
-				},
-				nor: {
-					type: new GraphQLList(queryType)
 				}
 		  })
 		});

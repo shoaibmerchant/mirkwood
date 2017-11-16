@@ -33,75 +33,63 @@ class PostgresqlDatabaseAdapter {
 				return '<=';
 			case '$like':
 				return 'like';
+			case '$nin':
+				return 'not in';
+			case '$in':
+				return 'in';
 		}
 	}
 	_resolveQuery(query, queryBuilder) {
-		// if (query.and) {
-		// 	return {
-		// 		$and: map(query.and, (subQuery) => {
-		// 			return this._resolveQuery(subQuery)
-		// 		})
-		// 	}
-		// }
-		// if (query.or) {
-		// 	return {
-		// 		$or: map(query.or, (subQuery) => {
-		// 			return this._resolveQuery(subQuery)
-		// 		})
-		// 	}
-		// }
-		// if (query.not) {
-		// 	return {
-		// 		$not: map(query.or, (subQuery) => {
-		// 			return this._resolveQuery(subQuery)
-		// 		})
-		// 	}
-		// }
-		// if (query.nor) {
-		// 	return {
-		// 		$nor: map(query.or, (subQuery) => {
-		// 			return this._resolveQuery(subQuery)
-		// 		})
-		// 	}
-		// }
+		let self = this;
 
-		let keyCount = keys(query.fields).length;
-		let resolvedSubQueries = [];
+		if (query.and) {
+			for (let qIdx=0; qIdx<query.and.length; qIdx++) {
+				let subQuery = query.and[qIdx];
 
-		for (let key of Object.keys(query.fields)) {
-			let subQuery = query.fields[key];
-			let subQueryValue = subQuery.value;
-
-			if (subQuery.operator === '$in' && Array.isArray(subQuery.values)) {
-				queryBuilder.whereIn(key, subQuery.values);
-			} else if(subQuery.operator === '$exists') {
-				queryBuilder.whereNotNull(key);
-			} else {
-				queryBuilder.where(key, this._operatorMatch(subQuery.operator), subQueryValue);
+				queryBuilder.where(function() {
+					self._resolveQuery(subQuery, this);
+				})
 			}
+		} else if (query.not) {
+			for (let qIdx=0; qIdx<query.not.length; qIdx++) {
+				let subQuery = query.not[qIdx];
 
-			// if (subQuery.operator === '$in' && Array.isArray(subQuery.values)) {
-			// 	subQueryValue = subQuery.values;
-			// }
-			//
-			// if (subQuery.operator === '$exists') {
-			// 	subQuery.value = true;
-			// }
-			//
-			// let resolvedSubQuery = {};
-			// resolvedSubQuery[key] = {};
-			// resolvedSubQuery[key][subQuery.operator] = subQueryValue;
-			//
-			// // add support for regex options
-			// if (subQuery.operator === '$regex' && subQuery.options && subQuery.options.match) {
-			// 	resolvedSubQuery[key]['$options'] = subQuery.options.match;
-			// }
-			//
-			// if (keyCount === 1) {
-			// 	return resolvedSubQuery;
-			// } else {
-			// 	resolvedSubQueries.push(resolvedSubQuery);
-			// }
+				queryBuilder.whereNot(function() {
+					self._resolveQuery(subQuery, this);
+				})
+			}
+		} else if (query.or) {
+			for (let qIdx=0; qIdx<query.or.length; qIdx++) {
+				let subQuery = query.or[qIdx];
+
+				if (qIdx === 0) {
+					queryBuilder.where(function() {
+						self._resolveQuery(subQuery, this);
+					})
+				} else {
+					queryBuilder.orWhere(function() {
+						self._resolveQuery(subQuery, this);
+					})
+				}
+			}
+		} else {
+			let keyCount = keys(query.fields).length;
+			let resolvedSubQueries = [];
+
+			for (let key of Object.keys(query.fields)) {
+				let subQuery = query.fields[key];
+				let subQueryValue = subQuery.value;
+
+				if ((subQuery.operator === '$in' || subQuery.operator === '$nin') && Array.isArray(subQuery.values)) {
+					subQueryValue = subQuery.values;
+				}
+
+				if(subQuery.operator === '$exists') {
+					queryBuilder.whereNotNull(key);
+				} else {
+					queryBuilder.where(key, this._operatorMatch(subQuery.operator), subQueryValue);
+				}
+			}
 		}
 	}
 
