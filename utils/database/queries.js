@@ -12,7 +12,8 @@ class DatabaseQueries {
   resolvers() {
     return {
       one: this.oneResolver,
-      all: this.allResolver
+      all: this.allResolver,
+			join: this.joinResolver
     }
   }
 
@@ -38,7 +39,7 @@ class DatabaseQueries {
               type: inputType
             },
 						query: {
-							type: this.generateQueryType(type, inputType, model)
+							type: DatabaseQueries.generateQueryType(type, inputType, model)
 						}
 					}
 				}),
@@ -48,7 +49,7 @@ class DatabaseQueries {
               type: inputType
             },
 						query: {
-							type: this.generateQueryType(type, inputType, model)
+							type: DatabaseQueries.generateQueryType(type, inputType, model)
 						}
 					}
 				})
@@ -56,7 +57,7 @@ class DatabaseQueries {
 		});
 	}
 
-	generateQueryFieldsType(type, inputType, model, isList) {
+	static generateQueryFieldsType(type, inputType, model, isList) {
 		let schema = model.schema;
 
 		let modelDatasource = schema.datasource
@@ -110,7 +111,7 @@ class DatabaseQueries {
 		});
 	}
 
-	generateQueryType(type, inputType, model) {
+	static generateQueryType(type, inputType, model) {
 		let schema = model.schema;
 
 		let modelDatasource = schema.datasource
@@ -127,7 +128,7 @@ class DatabaseQueries {
 		  name: queryTypeName,
 		  fields: () => ({
 				fields: {
-					type: this.generateQueryFieldsType(type, inputType, model)
+					type: DatabaseQueries.generateQueryFieldsType(type, inputType, model)
 				},
 		    and: {
 		      type: new GraphQLList(queryType)
@@ -172,6 +173,57 @@ class DatabaseQueries {
 			args: argsObjects,
       resolve: new Resolver(resolverName, (_, args) => {
         return Database.all(modelDatasource, args);
+      })
+		};
+  }
+
+	joinResolver(resolverName, type, model, inputSchema) {
+		let args = inputSchema.args;
+		let modelDatasource = model.schema.datasource;
+		let modelInputTypeName = [model.schema.name, 'InputType'].join('');
+
+    args = {
+			skip: {
+        type: Types.Int,
+        defaultValue: 0
+      },
+      limit: {
+        type: Types.Int,
+        defaultValue: 100
+      },
+			find: {
+				type: modelInputTypeName
+			},
+			query: {
+				type: DatabaseQueries.generateQueryType(type, modelInputTypeName, model)
+			},
+      sort: {
+        type: Types.SortType
+      },
+			...args
+    };
+
+    let argsObjects = Types.generateArgs(args, inputSchema.name);
+
+		return {
+			type: Types.List(type),
+			args: argsObjects,
+      resolve: new Resolver(resolverName, (obj, args) => {
+				let field = args.field;
+				let joinBy = args.joinBy;
+				let joinValue = obj[joinBy];
+
+				let dbArgs = {
+					skip: args.skip,
+					limit: args.limit,
+					sort: args.sort,
+					find: args.find || {}
+					// query: args.query
+				};
+
+				dbArgs.find[field] = joinValue.toString();
+
+				return Database.all(modelDatasource, dbArgs);
       })
 		};
   }
