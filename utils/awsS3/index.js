@@ -67,7 +67,6 @@ class AWSS3Utility {
 							return;
 						}
 
-
 						let data = {
 							// Bucket: sails.config.globals.awsBucketName,
 		          Key: dest,
@@ -94,7 +93,7 @@ class AWSS3Utility {
 		let modelName = schema.name;
 
 		return new GraphQLObjectType({
-			name: [modelName, 'AWS_Mutation'].join(''),
+			name: [modelName, 'AWSS3_Mutation'].join(''),
 			fields: {
 				upload: this.putResolver('awsS3.upload', Types.Boolean, model, { args: {} })
 			}
