@@ -95,6 +95,15 @@ class MongoDbDatabaseAdapter {
 	_resolveFind(find) {
 		let findQuery = {...find};
 
+		// convert all collections (array of objects) to objects
+		for(let key of Object.keys(find)) {
+			let findField = findQuery[key];
+
+			if (Array.isArray(findField) && findField.length > 0 && typeof findField[0] === 'object') {
+				findQuery[key] = findField[0];
+			}
+		}
+
 		// flatten all keys
 		findQuery = flatten(findQuery);
 
