@@ -13,7 +13,8 @@ class DatabaseQueries {
     return {
       one: this.oneResolver,
       all: this.allResolver,
-			join: this.joinResolver
+			joinMany: this.joinManyResolver,
+			joinOne: this.joinOneResolver
     }
   }
 
@@ -182,7 +183,7 @@ class DatabaseQueries {
 		return queryType;
 	}
 
-  allResolver(resolverName, type, model, inputSchema) {
+	allResolver(resolverName, type, model, inputSchema) {
     let modelDatasource = model.schema.datasource;
 		let args = inputSchema.args;
 
@@ -212,7 +213,7 @@ class DatabaseQueries {
 		};
   }
 
-	joinResolver(resolverName, type, model, inputSchema) {
+	joinManyResolver(resolverName, type, model, inputSchema) {
 		let args = inputSchema.args;
 		let modelDatasource = model.schema.datasource;
 		let modelInputTypeName = [model.schema.name, 'InputType'].join('');
@@ -229,9 +230,9 @@ class DatabaseQueries {
 			find: {
 				type: modelInputTypeName
 			},
-			query: {
-				type: DatabaseQueries.generateQueryType(type, modelInputTypeName, model)
-			},
+			// query: {
+			// 	type: DatabaseQueries.generateQueryType(type, modelInputTypeName, model)
+			// },
       sort: {
         type: Types.SortType
       },
@@ -256,9 +257,40 @@ class DatabaseQueries {
 					// query: args.query
 				};
 
+				// add join condition
 				dbArgs.find[field] = joinValue.toString();
 
 				return Database.all(modelDatasource, dbArgs);
+      })
+		};
+  }
+
+	joinOneResolver(resolverName, type, model, inputSchema) {
+		let args = inputSchema.args;
+		let modelDatasource = model.schema.datasource;
+		let modelInputTypeName = [model.schema.name, 'InputType'].join('');
+
+    args = {
+			find: {
+				type: modelInputTypeName
+			},
+			...args
+    };
+
+    let argsObjects = Types.generateArgs(args, inputSchema.name);
+
+		return {
+			type: type,
+			args: argsObjects,
+      resolve: new Resolver(resolverName, (obj, args) => {
+				let field = args.field;
+				let joinBy = args.joinBy;
+				let joinValue = obj[joinBy];
+
+				let find = args.find || {};
+				find[field] = joinValue.toString();
+
+				return Database.one(modelDatasource, find);
       })
 		};
   }
