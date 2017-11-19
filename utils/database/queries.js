@@ -57,30 +57,46 @@ class DatabaseQueries {
 		});
 	}
 
-	static generateQueryFieldsType(type, inputType, model, isList) {
-		let schema = model.schema;
-
-		let modelDatasource = schema.datasource
-		let modelName = schema.name;
-
-		let queryFieldsTypeName = [modelName, 'Fields'].join('_');
-		let queryFieldsTypeFields = {};
+	static generateQueryFieldsSchema(schema, typeName) {
+		let queryFieldSchema = {};
 
 		for (let key of Object.keys(schema.fields)) {
 			let field = schema.fields[key];
+			let fieldType = field.type;
 
 			if (field.resolve) {
 				continue;
 			}
 
-			let queryFieldsTypeFieldsName = [queryFieldsTypeName, key].join('_')
+			let queryFieldsTypeFieldsName = [typeName, key].join('_')
 
-			queryFieldsTypeFields[key] = {
+			if (typeof fieldType === 'object' && fieldType.fields) {
+				queryFieldSchema[key] = {
+					type: Types.generateInputType({
+						name: queryFieldsTypeFieldsName,
+						fields: DatabaseQueries.generateQueryFieldsSchema(fieldType, queryFieldsTypeFieldsName)
+					})
+				};
+				continue;
+			}
+
+			if (Array.isArray(fieldType) && fieldType[0].fields) {
+				queryFieldSchema[key] = {
+					type: Types.generateInputType({
+						name: queryFieldsTypeFieldsName,
+						fields: DatabaseQueries.generateQueryFieldsSchema(fieldType[0], queryFieldsTypeFieldsName)
+					})
+				};
+				continue;
+			}
+
+			queryFieldSchema[key] = {
 				type: Types.generateInputType({
 					name: queryFieldsTypeFieldsName,
 					fields: {
 						operator: {
-							type: Types.OperatorType
+							type: Types.OperatorType,
+							required: true
 						},
 						value: {
 							type: field.type
@@ -104,6 +120,25 @@ class DatabaseQueries {
 				})
 			};
 		}
+		return queryFieldSchema;
+	}
+
+	static generateQueryFieldsType(type, inputType, model) {
+		let schema = model.schema;
+
+		let modelDatasource = schema.datasource
+		let modelName = schema.name;
+
+		let queryFieldsTypeName = [modelName, 'Fields'].join('_');
+
+		let queryFieldsTypeFields = DatabaseQueries.generateQueryFieldsSchema(schema, queryFieldsTypeName);
+
+		// convert all nested objects, collections to strings
+		// let schemaFields = DatabaseQueries.flattenSchema(schema.fields);
+
+		// for (let key of Object.keys(schema.fields)) {
+		//
+		// }
 
 		return Types.generateInputType({
 		  name: queryFieldsTypeName,

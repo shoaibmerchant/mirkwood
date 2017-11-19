@@ -47,6 +47,25 @@ class MongoDbDatabaseAdapter {
 		let keyCount = keys(query.fields).length;
 		let resolvedSubQueries = [];
 
+		// flattening
+		let flatFind = (fields, keys, schema) => {
+			keys = keys ? keys : [];
+			schema = schema ? schema : {};
+
+			for(let key of Object.keys(fields)) {
+				let field = fields[key];
+
+				if (!field.operator) {
+					schema = flatFind(field, keys.concat([key]), schema);
+				} else {
+					schema[keys.concat([key]).join('.')] = fields[key];
+				}
+			}
+			return schema;
+		}
+
+		query.fields = flatFind(query.fields);
+
 		for (let key of Object.keys(query.fields)) {
 			let subQuery = query.fields[key];
 
