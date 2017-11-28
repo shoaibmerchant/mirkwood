@@ -101,9 +101,6 @@ class AWSS3Utility {
 	}
 
 	queries(type, inputType, model) {
-		let schema = model.schema;
-		let modelName = schema.name;
-
     return false;
 	}
 }

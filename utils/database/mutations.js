@@ -71,6 +71,7 @@ class DatabaseMutations {
 			args: argsObjects,
 			resolve: new Resolver(resolverName, (_, args) => {
 				let input = args.input; // take first property
+
 				let result = new Promise((resolve, reject) => {
 
 					if (Array.isArray(input)) {
