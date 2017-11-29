@@ -30,14 +30,14 @@ class DatabaseQueries {
         one: this.oneResolver('database.one', type, model, {
 					args: {
             find: {
-							type: inputType
+							type: DatabaseQueries.generateFindType(model)
 						}
 					}
 				}),
         all: this.allResolver('database.all', type, model, {
 					args: {
             find: {
-              type: inputType
+							type: DatabaseQueries.generateFindType(model)
             },
 						query: {
 							type: DatabaseQueries.generateQueryType(type, inputType, model)
@@ -47,7 +47,7 @@ class DatabaseQueries {
 				count: this.countResolver('database.count', type, model, {
 					args: {
             find: {
-              type: inputType
+							type: DatabaseQueries.generateFindType(model)
             },
 						query: {
 							type: DatabaseQueries.generateQueryType(type, inputType, model)
@@ -134,17 +134,27 @@ class DatabaseQueries {
 
 		let queryFieldsTypeFields = DatabaseQueries.generateQueryFieldsSchema(schema, queryFieldsTypeName);
 
-		// convert all nested objects, collections to strings
-		// let schemaFields = DatabaseQueries.flattenSchema(schema.fields);
-
-		// for (let key of Object.keys(schema.fields)) {
-		//
-		// }
-
 		return Types.generateInputType({
 		  name: queryFieldsTypeName,
 		  fields: queryFieldsTypeFields
 		});
+	}
+
+	static generateFindType(model) {
+		let schema = model.schema;
+		let modelName = schema.name;
+
+		let findTypeName = [modelName, 'Find'].join('_');
+
+		// fetch if exists
+		if (Types.get(findTypeName)) {
+			return Types.get(findTypeName);
+		}
+
+		return Types.generateInputType({
+		  name: findTypeName,
+		  fields: schema.fields
+		}, ['type', 'resolve', 'description']); // sp that defaultValue is filtered out
 	}
 
 	static generateQueryType(type, inputType, model) {
@@ -216,7 +226,6 @@ class DatabaseQueries {
 	joinManyResolver(resolverName, type, model, inputSchema) {
 		let args = inputSchema.args;
 		let modelDatasource = model.schema.datasource;
-		let modelInputTypeName = [model.schema.name, 'InputType'].join('');
 
     args = {
 			skip: {
@@ -228,7 +237,7 @@ class DatabaseQueries {
         defaultValue: 100
       },
 			find: {
-				type: modelInputTypeName
+				type: DatabaseQueries.generateFindType(model)
 			},
 			// query: {
 			// 	type: DatabaseQueries.generateQueryType(type, modelInputTypeName, model)
@@ -268,11 +277,10 @@ class DatabaseQueries {
 	joinOneResolver(resolverName, type, model, inputSchema) {
 		let args = inputSchema.args;
 		let modelDatasource = model.schema.datasource;
-		let modelInputTypeName = [model.schema.name, 'InputType'].join('');
 
     args = {
 			find: {
-				type: modelInputTypeName
+				type: DatabaseQueries.generateFindType(model)
 			},
 			...args
     };
