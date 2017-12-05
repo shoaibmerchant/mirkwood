@@ -154,7 +154,7 @@ class DatabaseQueries {
 		return Types.generateInputType({
 		  name: findTypeName,
 		  fields: schema.fields
-		}, ['type', 'resolve', 'description']); // sp that defaultValue is filtered out
+		}, ['defaultValue']); // sp that defaultValue is filtered out
 	}
 
 	static generateQueryType(type, inputType, model) {
