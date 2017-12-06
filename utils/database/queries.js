@@ -209,6 +209,9 @@ class DatabaseQueries {
       sort: {
         type: Types.SortType
       },
+			orderBy: {
+        type: [Types.SortType]
+      },
       ...args
     };
 
@@ -245,6 +248,9 @@ class DatabaseQueries {
       sort: {
         type: Types.SortType
       },
+			orderBy: {
+        type: [Types.SortType]
+      },
 			...args
     };
 
@@ -262,6 +268,7 @@ class DatabaseQueries {
 					skip: args.skip,
 					limit: args.limit,
 					sort: args.sort,
+					orderBy: args.orderBy,
 					find: args.find || {}
 					// query: args.query
 				};

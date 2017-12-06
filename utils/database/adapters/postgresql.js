@@ -123,6 +123,13 @@ class PostgresqlDatabaseAdapter {
 					if (args.sort) {
             queryBuilder.orderBy(args.sort.field, args.sort.order);
           }
+
+					if (args.orderBy && args.orderBy.length > 0) {
+						args.orderBy.map(orderBy => {
+							console.log('hi!');
+							queryBuilder.orderBy(orderBy.field, orderBy.order);
+						})
+          }
         })
         .limit(args.limit)
         .offset(args.skip)
