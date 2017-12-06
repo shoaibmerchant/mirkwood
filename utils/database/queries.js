@@ -154,7 +154,7 @@ class DatabaseQueries {
 		return Types.generateInputType({
 		  name: findTypeName,
 		  fields: schema.fields
-		}, ['type', 'resolve', 'description']); // sp that defaultValue is filtered out
+		}, ['defaultValue']); // sp that defaultValue is filtered out
 	}
 
 	static generateQueryType(type, inputType, model) {
@@ -209,6 +209,9 @@ class DatabaseQueries {
       sort: {
         type: Types.SortType
       },
+			orderBy: {
+        type: [Types.SortType]
+      },
       ...args
     };
 
@@ -245,6 +248,9 @@ class DatabaseQueries {
       sort: {
         type: Types.SortType
       },
+			orderBy: {
+        type: [Types.SortType]
+      },
 			...args
     };
 
@@ -262,6 +268,7 @@ class DatabaseQueries {
 					skip: args.skip,
 					limit: args.limit,
 					sort: args.sort,
+					orderBy: args.orderBy,
 					find: args.find || {}
 					// query: args.query
 				};

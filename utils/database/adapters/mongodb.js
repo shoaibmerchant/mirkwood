@@ -160,7 +160,18 @@ class MongoDbDatabaseAdapter {
 					}
 
 					args.sort = args.sort ? args.sort : {};
-					let sort = [ args.sort.field || false, args.sort.order === 'asc' ? 1: -1 ];
+					let sort = {};
+
+					if (args.sort && args.sort.field) {
+						sort[args.sort.field] = args.sort.order === 'asc' ? 1: -1;
+					}
+
+					if (args.orderBy && args.orderBy.length > 0) {
+						args.orderBy.map(orderBy => {
+							sort[orderBy.field] = orderBy.order === 'asc' ? 1: -1;
+						})
+					}
+
 					return collection.find(resolvedFind).sort(sort).skip(args.skip).limit(args.limit).toArray();
 				})
 				.then(res => {

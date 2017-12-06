@@ -1,6 +1,6 @@
 {
   "name": "mirkwood",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "GraphQL based Rapid Server-side Development framework",
   "main": "dist/index.js",
   "scripts": {
