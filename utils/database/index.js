@@ -67,9 +67,9 @@ class DatabaseUtility {
 		let childrenRelations = {};
 
 		relations.forEach((relation) => {
-			let resolverName = [modelKey, 'children', relation.key].join('.');
+			let resolverName = [modelKey, 'children', relation.name].join('.');
 
-			childrenRelations[relation.key] = this.resolvers['joinMany'](
+			childrenRelations[relation.name] = this.resolvers['joinMany'](
 				resolverName,
 				Types.get(relation.type), Types.model(relation.model),
 				{
@@ -93,9 +93,9 @@ class DatabaseUtility {
 		let childRelations = {};
 
 		relations.forEach((relation) => {
-			let resolverName = [modelKey, 'child', relation.key].join('.');
+			let resolverName = [modelKey, 'child', relation.name].join('.');
 
-			childRelations[relation.key] = this.resolvers['joinOne'](
+			childRelations[relation.name] = this.resolvers['joinOne'](
 				resolverName,
 				Types.get(relation.type), Types.model(relation.model),
 				{
@@ -119,9 +119,9 @@ class DatabaseUtility {
 		let parentRelations = {};
 
 		relations.forEach((relation) => {
-			let resolverName = [modelKey, 'parent', relation.key].join('.');
+			let resolverName = [modelKey, 'parent', relation.name].join('.');
 
-			parentRelations[relation.key] = this.resolvers['joinOne'](
+			parentRelations[relation.name] = this.resolvers['joinOne'](
 				resolverName,
 				Types.get(relation.type), Types.model(relation.model),
 				{
@@ -132,7 +132,7 @@ class DatabaseUtility {
 						},
 						joinBy: {
 							type: Types.String,
-							defaultValue: relation.joinBy 
+							defaultValue: relation.joinBy
 						}
 					}
 				});
