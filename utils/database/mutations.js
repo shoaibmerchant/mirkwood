@@ -46,7 +46,7 @@ class DatabaseMutations {
 							type: Types.ID
 						},
 						input: {
-							type: inputType
+							type: DatabaseMutations.generateUpdateType(model)
 						}
 					}
 				}),
@@ -59,6 +59,23 @@ class DatabaseMutations {
 				})
 			}
 		});
+	}
+
+	static generateUpdateType(model) {
+		let schema = model.schema;
+		let modelName = schema.name;
+
+		let updateTypeName = [modelName, 'Update'].join('_');
+
+		// fetch if exists
+		if (Types.get(updateTypeName)) {
+			return Types.get(updateTypeName);
+		}
+
+		return Types.generateInputType({
+		  name: updateTypeName,
+		  fields: schema.fields
+		}, ['defaultValue']); // sp that defaultValue is filtered out
 	}
 
 	createResolver(resolverName, type, model, inputSchema) {

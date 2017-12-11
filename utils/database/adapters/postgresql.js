@@ -86,6 +86,11 @@ class PostgresqlDatabaseAdapter {
 					subQueryValue = subQuery.values;
 				}
 
+				if (subQuery.operator === '$regex') {
+					subQuery.operator = '$like'
+					subQueryValue = `%${subQueryValue}%`;
+				}
+
 				if(subQuery.operator === '$exists') {
 					queryBuilder.whereNotNull(key);
 				} else {
@@ -126,7 +131,6 @@ class PostgresqlDatabaseAdapter {
 
 					if (args.orderBy && args.orderBy.length > 0) {
 						args.orderBy.map(orderBy => {
-							console.log('hi!');
 							queryBuilder.orderBy(orderBy.field, orderBy.order);
 						})
           }
