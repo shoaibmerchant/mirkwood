@@ -1,6 +1,6 @@
 {
   "name": "mirkwood",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "GraphQL based Rapid Server-side Development framework",
   "main": "dist/index.js",
   "scripts": {
@@ -30,6 +30,7 @@
     "lodash": "^4.17.4",
     "mime": "^2.0.3",
     "mkdirp": "^0.5.1",
+    "moment": "^2.19.4",
     "mongodb": "^2.2.30",
     "nodemailer": "^4.1.1",
     "pg": "^7.4.0",

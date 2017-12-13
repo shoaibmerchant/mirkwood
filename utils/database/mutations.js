@@ -187,6 +187,7 @@ class DatabaseMutations {
 			})
 		};
 	}
+
 }
 
 export default (new DatabaseMutations());
