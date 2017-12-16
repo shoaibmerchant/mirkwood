@@ -100,7 +100,6 @@ class DatabaseMutations {
 					} else {
 						Database.create(modelDatasource, input)
 							.then(res => {
-								console.log(res);
 								resolve(res);
 							})
 							.catch(reject);
