@@ -86,7 +86,6 @@ class ImageUtility {
 			type: type || Types.Boolean,
 			args: argsObjects,
 			resolve: new Resolver(resolverName, (_, args, ctx) => {
-        console.log('Started image editing!');
         let srcPath = path.resolve(args.cwd, args.src);
         let destPath = path.resolve(args.cwd, args.dest);
         let options = args.options;
