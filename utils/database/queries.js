@@ -273,6 +273,10 @@ class DatabaseQueries {
 					// query: args.query
 				};
 
+				if (joinValue === null) {
+					return Promise.resolve(null)
+				}
+
 				// add join condition
 				dbArgs.find[field] = joinValue.toString();
 
@@ -303,6 +307,11 @@ class DatabaseQueries {
 				let joinValue = obj[joinBy];
 
 				let find = args.find || {};
+
+				if (joinValue === null) {
+					return Promise.resolve(null)
+				}
+
 				find[field] = joinValue.toString();
 
 				return Database.one(modelDatasource, find);
