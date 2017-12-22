@@ -7,13 +7,22 @@ class Database {
 
 	static init({ config }) {
 		this.config = config;
+		this.connections = {};
 	}
 
 	static getConnection = (datasource) => {
-		let dbConnectionParams = Database.config[datasource.connection || process.env['NODE_ENV'] || 'development'];
+		let connectionName = datasource.connection || process.env['NODE_ENV'] || 'development';
+		let dbConnectionParams = Database.config[connectionName];
 		let dbAdapter = adapters[dbConnectionParams.adapter || DEFAULT_ADAPTER];
 
-		return new dbAdapter(dbConnectionParams);
+		// check if connection exists
+		if (Database.connections[connectionName]) {
+			return Database.connections[connectionName];
+		}
+
+		let newConnection = new dbAdapter(dbConnectionParams);
+		Database.connections[connectionName] = newConnection;
+		return newConnection;
 	}
 
 	static all = (datasource, args) => {
