@@ -14,8 +14,7 @@ class HttpUtility {
 		let args = inputSchema.args;
 
 		args = {
-      ...args,
-      method: {
+			method: {
         type: Types.String,
         defaultValue: 'GET'
       },
@@ -26,7 +25,8 @@ class HttpUtility {
       json: {
         type: Types.String,
         defaultValue: true
-      }
+      },
+      ...args,
 		};
 
     if (!args.headers) {
