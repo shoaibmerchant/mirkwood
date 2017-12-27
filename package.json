@@ -1,5 +1,5 @@
 {
-  "name": "mirkwood",
+  "name": "@actonate/mirkwood",
   "version": "0.3.16",
   "description": "GraphQL based Rapid Server-side Development framework",
   "main": "dist/index.js",
