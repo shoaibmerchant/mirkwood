@@ -193,6 +193,7 @@ class DatabaseQueries {
 		return queryType;
 	}
 
+
 	allResolver(resolverName, type, model, inputSchema) {
     let modelDatasource = model.schema.datasource;
 		let args = inputSchema.args;
@@ -209,6 +210,9 @@ class DatabaseQueries {
       sort: {
         type: Types.SortType
       },
+			aggregate: {
+				type: Types.AggregateType
+			},
 			orderBy: {
         type: [Types.SortType]
       },
@@ -342,6 +346,12 @@ class DatabaseQueries {
     let modelDatasource = model.schema.datasource;
 		let args = inputSchema.args;
 
+		args = {
+			...args,
+			aggregate: {
+				type: Types.AggregateType
+			}
+		}
     // check if where is not specified then generate default
 		if (!args.find && !args._id) {
 			args.find = {
@@ -359,11 +369,12 @@ class DatabaseQueries {
 			type: type,
 			args: argsObjects,
       resolve: new Resolver(resolverName, (_, args) => {
+				const aggregate = args.aggregate;
         if (args._id) {
 					args.find = { _id: args._id };
 					delete args._id;
 				}
-        return Database.one(modelDatasource, args.find);
+        return Database.one(modelDatasource, args.find, { aggregate });
       })
 		};
   }

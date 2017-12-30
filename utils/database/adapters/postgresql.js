@@ -1,5 +1,6 @@
-import flatten from 'flat';
-import { map, keys, values, mapValues } from 'lodash';
+import { flatten } from 'flat';
+import { unflatten } from 'flat';
+import { map, keys, pickBy, values, mapValues } from 'lodash';
 import knex from 'knex';
 import uuid from 'uuid';
 
@@ -110,13 +111,50 @@ class PostgresqlDatabaseAdapter {
 		}
 	}
 
+	_resolveAggregate(aggregate, queryBuilder) {
+		if (!aggregate) {
+			return null;
+		}
+
+		let columns = [];
+		for (let fn of Object.keys(aggregate)) {
+			aggregate[fn].map(field => {
+				queryBuilder[fn]([field, 'as', ['aggr', fn, field].join('_')].join(' '));
+			});
+		}
+	}
+
+	_transformRow(row) {
+		// identify all aggregate fields and unflatten them
+		let aggregateFields = pickBy(row, (value, key) => key.startsWith('aggr_'));
+
+		// remove all aggr fields
+		row = pickBy(row, (value, key) => !key.startsWith('aggr_'));
+
+		if (!aggregateFields || keys(aggregateFields).length === 0) {
+			return row;
+		}
+
+		let aggregates = unflatten(aggregateFields, { delimiter: '_' });
+
+		return {
+			...row,
+			_aggregates: aggregates['aggr']
+		};
+	}
+
 	all(datasource, args) {
 		let self = this;
 		let dbPromise = new Promise((resolve, reject) => {
-      let tableName = datasource.table || datasource.collection;
+      const tableName = datasource.table || datasource.collection;
 
-      this.db.select().table(tableName)
-        .modify(function(queryBuilder) {
+			this.db
+				.select()
+				.modify(queryBuilder => {
+					self._resolveAggregate(args.aggregate, queryBuilder);
+				})
+				.table(tableName)
+        .modify(queryBuilder => {
 					if (args.find) {
 						self._resolveFind(args.find, queryBuilder)
 					}
@@ -138,7 +176,8 @@ class PostgresqlDatabaseAdapter {
         .limit(args.limit)
         .offset(args.skip)
         .then((res) => {
-          resolve(res);
+					const rows = res.map(this._transformRow);
+					resolve(rows);
         })
         .catch((err) => {
           reject(err);
@@ -154,7 +193,7 @@ class PostgresqlDatabaseAdapter {
       let tableName = datasource.table || datasource.collection;
 
       this.db.select().count().table(tableName)
-				.modify(function(queryBuilder) {
+				.modify(queryBuilder => {
 					if (args.find) {
 						self._resolveFind(args.find, queryBuilder)
 					}
@@ -174,12 +213,26 @@ class PostgresqlDatabaseAdapter {
 	}
 
 	one(datasource, find, args) {
+		const self = this;
     let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
-      this.db.select().where(find).limit(1).table(tableName)
+      this.db
+			.select()
+			.modify(queryBuilder => {
+				self._resolveAggregate(args.aggregate, queryBuilder);
+			})
+			.table(tableName)
+			.modify(queryBuilder => {
+				if (find) {
+					queryBuilder.where(find)
+				}
+			})
+			// .where(find ? find : null)
+			.limit(1)
         .then((res) => {
-          resolve(res[0]);
+					const row = this._transformRow(res[0]);
+          resolve(row);
         })
         .catch((err) => {
           reject(err);
