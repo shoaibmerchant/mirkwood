@@ -112,6 +112,10 @@ class PostgresqlDatabaseAdapter {
 	}
 
 	_resolveColumns(args, queryBuilder) {
+		if (!args) {
+			return;
+		}
+
 		const { aggregate, groupBy, distinct } = args;
 
 		// add group by columns
