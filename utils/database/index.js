@@ -1,3 +1,4 @@
+import { keys, pickBy, mapValues } from 'lodash';
 import Database from './database';
 import DatabaseMutations from './mutations';
 import DatabaseQueries from './queries';
@@ -59,6 +60,57 @@ class DatabaseUtility {
 				resolve: (obj) => obj
 			};
 		}
+
+		return model;
+	}
+
+	aggregates(model) {
+		let modelSchema = model.schema;
+		let modelRelations = modelSchema.relations;
+		let modelName = model.schema.name;
+		let modelKey = model.key;
+
+		let modelFields = modelSchema.fields;
+
+		let aggregateFields = pickBy(modelFields, field => field.aggregate);
+
+		// skip if no aggregate fields
+		if (!aggregateFields || keys(aggregateFields).length === 0) {
+			return model;
+		}
+
+		let modelAggregateFieldType = Types.generateType({
+			name: [modelName, 'AggregateFields'].join(''),
+			fields: mapValues(aggregateFields, value => ({
+				...value,
+				type: Types.Float
+			}))
+		});
+
+		let modelAggregatesType = Types.generateType({
+			name: [modelName, 'Aggregates'].join(''),
+			fields: {
+				sum: {
+					type: modelAggregateFieldType
+				},
+				avg: {
+					type: modelAggregateFieldType
+				},
+				count: {
+					type: modelAggregateFieldType
+				},
+				min: {
+					type: modelAggregateFieldType
+				},
+				max: {
+					type: modelAggregateFieldType
+				}
+			}
+		})
+
+		modelFields['_aggregates'] = {
+			type: modelAggregatesType
+		};
 
 		return model;
 	}
