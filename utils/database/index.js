@@ -98,6 +98,12 @@ class DatabaseUtility {
 				},
 				count: {
 					type: modelAggregateFieldType
+				},
+				min: {
+					type: modelAggregateFieldType
+				},
+				max: {
+					type: modelAggregateFieldType
 				}
 			}
 		})

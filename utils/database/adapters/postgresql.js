@@ -111,7 +111,9 @@ class PostgresqlDatabaseAdapter {
 		}
 	}
 
-	_resolveAggregate(aggregate, queryBuilder) {
+	_resolveColumns(args, queryBuilder) {
+		const { aggregate, groupBy } = args;
+
 		if (!aggregate) {
 			return null;
 		}
@@ -121,6 +123,13 @@ class PostgresqlDatabaseAdapter {
 			aggregate[fn].map(field => {
 				queryBuilder[fn]([field, 'as', ['aggr', fn, field].join('_')].join(' '));
 			});
+		}
+
+		// add group by columns
+		if (groupBy && Array.isArray(groupBy)) {
+				groupBy.map(groupBy => {
+					queryBuilder.column(groupBy.field);
+				})
 		}
 	}
 
@@ -151,7 +160,7 @@ class PostgresqlDatabaseAdapter {
 			this.db
 				.select()
 				.modify(queryBuilder => {
-					self._resolveAggregate(args.aggregate, queryBuilder);
+					self._resolveColumns(args, queryBuilder);
 				})
 				.table(tableName)
         .modify(queryBuilder => {
@@ -162,7 +171,15 @@ class PostgresqlDatabaseAdapter {
 					if (args.query) {
 						self._resolveQuery(args.query, queryBuilder)
 					}
-
+        })
+				.modify(queryBuilder => {
+					if (args.groupBy) {
+						args.groupBy.map(groupBy => {
+							queryBuilder.groupBy(groupBy.field)
+						});
+					}
+        })
+				.modify(queryBuilder => {
 					if (args.sort) {
             queryBuilder.orderBy(args.sort.field, args.sort.order);
           }
@@ -172,7 +189,7 @@ class PostgresqlDatabaseAdapter {
 							queryBuilder.orderBy(orderBy.field, orderBy.order);
 						})
           }
-        })
+				})
         .limit(args.limit)
         .offset(args.skip)
         .then((res) => {
@@ -220,7 +237,7 @@ class PostgresqlDatabaseAdapter {
       this.db
 			.select()
 			.modify(queryBuilder => {
-				self._resolveAggregate(args.aggregate, queryBuilder);
+				self._resolveColumns(args, queryBuilder);
 			})
 			.table(tableName)
 			.modify(queryBuilder => {

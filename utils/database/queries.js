@@ -216,6 +216,9 @@ class DatabaseQueries {
 			orderBy: {
         type: [Types.SortType]
       },
+			groupBy: {
+				type: [Types.GroupByType]
+			},
       ...args
     };
 
