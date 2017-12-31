@@ -112,24 +112,29 @@ class PostgresqlDatabaseAdapter {
 	}
 
 	_resolveColumns(args, queryBuilder) {
-		const { aggregate, groupBy } = args;
-
-		if (!aggregate) {
-			return null;
-		}
-
-		let columns = [];
-		for (let fn of Object.keys(aggregate)) {
-			aggregate[fn].map(field => {
-				queryBuilder[fn]([field, 'as', ['aggr', fn, field].join('_')].join(' '));
-			});
-		}
+		const { aggregate, groupBy, distinct } = args;
 
 		// add group by columns
 		if (groupBy && Array.isArray(groupBy)) {
-				groupBy.map(groupBy => {
-					queryBuilder.column(groupBy.field);
-				})
+			groupBy.map(groupBy => {
+				queryBuilder.column(groupBy.field);
+			})
+		}
+
+		// add distinct columns
+		if (distinct && Array.isArray(distinct)) {
+			distinct.map(distinct => {
+				queryBuilder.distinct(distinct);
+			})
+		}
+
+		// add aggregate fields
+		if (aggregate && keys(aggregate).length > 0) {
+			for (let fn of Object.keys(aggregate)) {
+				aggregate[fn].map(field => {
+					queryBuilder[fn]([field, 'as', ['aggr', fn, field].join('_')].join(' '));
+				});
+			}
 		}
 	}
 

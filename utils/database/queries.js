@@ -207,6 +207,9 @@ class DatabaseQueries {
         type: Types.Int,
         defaultValue: 100
       },
+			distinct: {
+				type: [Types.String]
+			},
       sort: {
         type: Types.SortType
       },
