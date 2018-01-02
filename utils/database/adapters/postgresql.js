@@ -1,6 +1,6 @@
 import { flatten } from 'flat';
 import { unflatten } from 'flat';
-import { map, keys, pickBy, values, mapValues } from 'lodash';
+import { map, keys, pickBy, values, mapValues, mapKeys } from 'lodash';
 import knex from 'knex';
 import uuid from 'uuid';
 
@@ -153,7 +153,9 @@ class PostgresqlDatabaseAdapter {
 			return row;
 		}
 
-		let aggregates = unflatten(aggregateFields, { delimiter: '_' });
+		// to handle the fields starting with '_' (underscore), replace all underscore with .
+		aggregateFields = mapKeys(aggregateFields, (value, key) => key.replace(/aggr_(sum|min|max|count|avg)_/, 'aggr.$1.'));
+		let aggregates = unflatten(aggregateFields, { delimiter: '.' });
 
 		return {
 			...row,
