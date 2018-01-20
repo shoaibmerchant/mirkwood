@@ -43,7 +43,11 @@ class DatabaseMutations {
 				update: this.updateResolver('database.update', type, model, {
 					args: {
 						_id: {
-							type: Types.ID
+							type: Types.ID,
+							deprecationReason: 'Use find argument instead of _id as it supports more options'
+						},
+						find: {
+							type: Database.generateFindType(model)
 						},
 						input: {
 							type: DatabaseMutations.generateUpdateType(model)
@@ -53,7 +57,11 @@ class DatabaseMutations {
 				destroy: this.destroyResolver('database.destroy', type, model, {
 					args: {
 						_id: {
-							type: Types.ID
+							type: Types.ID,
+							deprecationReason: 'Use find argument instead of _id as it supports more options'
+						},
+						find: {
+							type: Database.generateFindType(model)
 						}
 					}
 				})

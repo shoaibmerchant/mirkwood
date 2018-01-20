@@ -30,14 +30,14 @@ class DatabaseQueries {
         one: this.oneResolver('database.one', type, model, {
 					args: {
             find: {
-							type: DatabaseQueries.generateFindType(model)
+							type: Database.generateFindType(model)
 						}
 					}
 				}),
         all: this.allResolver('database.all', type, model, {
 					args: {
             find: {
-							type: DatabaseQueries.generateFindType(model)
+							type: Database.generateFindType(model)
             },
 						query: {
 							type: DatabaseQueries.generateQueryType(type, inputType, model)
@@ -47,7 +47,7 @@ class DatabaseQueries {
 				count: this.countResolver('database.count', type, model, {
 					args: {
             find: {
-							type: DatabaseQueries.generateFindType(model)
+							type: Database.generateFindType(model)
             },
 						query: {
 							type: DatabaseQueries.generateQueryType(type, inputType, model)
@@ -138,23 +138,6 @@ class DatabaseQueries {
 		  name: queryFieldsTypeName,
 		  fields: queryFieldsTypeFields
 		});
-	}
-
-	static generateFindType(model) {
-		let schema = model.schema;
-		let modelName = schema.name;
-
-		let findTypeName = [modelName, 'Find'].join('_');
-
-		// fetch if exists
-		if (Types.get(findTypeName)) {
-			return Types.get(findTypeName);
-		}
-
-		return Types.generateInputType({
-		  name: findTypeName,
-		  fields: schema.fields
-		}, ['defaultValue']); // sp that defaultValue is filtered out
 	}
 
 	static generateQueryType(type, inputType, model) {
@@ -250,7 +233,7 @@ class DatabaseQueries {
         defaultValue: 100
       },
 			find: {
-				type: DatabaseQueries.generateFindType(model)
+				type: Database.generateFindType(model)
 			},
 			// query: {
 			// 	type: DatabaseQueries.generateQueryType(type, modelInputTypeName, model)
@@ -288,7 +271,11 @@ class DatabaseQueries {
 				}
 
 				// add join condition
-				dbArgs.find[field] = joinValue.toString();
+				if (Array.isArray(joinValue)) {
+					dbArgs.find[field] = joinValue;
+				} else {
+					dbArgs.find[field] = joinValue.toString();
+				}
 
 				return Database.all(modelDatasource, dbArgs);
       })
@@ -301,7 +288,7 @@ class DatabaseQueries {
 
     args = {
 			find: {
-				type: DatabaseQueries.generateFindType(model)
+				type: Database.generateFindType(model)
 			},
 			...args
     };
