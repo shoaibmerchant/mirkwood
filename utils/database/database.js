@@ -1,7 +1,9 @@
 import adapters from './adapters';
 import moment from 'moment';
+import Types from '../../lib/types';
+
 const DEFAULT_CONNECTION = 'development';
-const DEFAULT_ADAPTER = 'mongodb';
+const DEFAULT_ADAPTER = 'postgresql';
 
 class Database {
 
@@ -85,6 +87,23 @@ class Database {
 			}
 		}
 		return row;
+	}
+
+	static generateFindType(model) {
+		let schema = model.schema;
+		let modelName = schema.name;
+
+		let findTypeName = [modelName, 'Find'].join('_');
+
+		// fetch if exists
+		if (Types.get(findTypeName)) {
+			return Types.get(findTypeName);
+		}
+
+		return Types.generateInputType({
+		  name: findTypeName,
+		  fields: schema.fields
+		}, ['defaultValue']); // sp that defaultValue is filtered out
 	}
 }
 

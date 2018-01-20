@@ -171,11 +171,20 @@ class DatabaseUtility {
 		let parentRelations = {};
 
 		relations.forEach((relation) => {
-			let resolverName = [modelKey, 'parent', relation.name].join('.');
 
-			parentRelations[relation.name] = this.resolvers['joinOne'](
+			let resolverName = [modelKey, 'parent', relation.name].join('.');
+			let relationTypeName = relation.type;
+			let joinResolver = this.resolvers['joinOne'];
+
+			// handle array case (multiple parents)
+			if (Array.isArray(relationTypeName)) {
+				joinResolver = this.resolvers['joinMany'];
+				relationTypeName = relationTypeName[0];
+			}
+
+			parentRelations[relation.name] = joinResolver(
 				resolverName,
-				Types.get(relation.type), Types.model(relation.model),
+				Types.get(relationTypeName), Types.model(relation.model),
 				{
 					args: {
 						field: {
