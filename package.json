@@ -1,6 +1,6 @@
 {
   "name": "@actonate/mirkwood",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "GraphQL based Rapid Server-side Development framework",
   "main": "dist/index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "babel . --presets babel-preset-es2015,babel-preset-stage-2 --out-dir dist --ignore ./dist,./node_modules && babel ./lib/errors.js --presets babel-preset-es2015,babel-preset-stage-2 --out-file ./errors.js",
     "prepublish": "npm run build"
   },
-  "author": "Shoaib Merchant (Actonate)",
+  "author": "Actonate IT Solutions Pvt Ltd",
   "license": "UNLICENSED",
   "dependencies": {
     "apollo-errors": "^1.5.1",
