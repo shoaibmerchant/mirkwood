@@ -8,11 +8,15 @@
 
 _One Framework to rule them all, One Framework to find them, One Framework to bring them all and in the darkness bind them_
 
+
+## Mirkwood
+
 **Mirkwood** is a GraphQL-based Rapid Server-Side Development framework, that is built by the Developers, of the Developers and for the Developers.
 
-Head to the Repository Wiki to get started.
+Head to the [Getting Started]() wiki of the repository to start rolling.
 
-Copyright, Actonate IT Solutions Pvt Ltd.
+© 2018, Actonate IT Solutions Pvt Ltd.
+
 
 
 
