@@ -13,8 +13,7 @@ _One Framework to rule them all, One Framework to find them, One Framework to br
 
 **Mirkwood** is a GraphQL-based Rapid Server-Side Development framework, that is built by the Developers, of the Developers and for the Developers.
 
-Head to the [Getting Started]() wiki of the repository to start rolling.
-
+Head to the [wiki](https://bitbucket.org/actonatedev/mirkwood/wiki/Home) of the repository to start rolling.
 
 
 
