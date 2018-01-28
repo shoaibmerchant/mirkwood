@@ -15,12 +15,12 @@ _One Framework to rule them all, One Framework to find them, One Framework to br
 
 Head to the [wiki](https://bitbucket.org/actonatedev/mirkwood/wiki/Home) of the repository to start rolling.
 
+_© 2018, Actonate IT Solutions Pvt Ltd._
+<br/>
+<br/>
 
 
      ^  ^  ^   ^      ___I_      ^  ^   ^  ^  ^   ^  ^
     /|\/|\/|\ /|\    /\-_--\    /|\/|\ /|\/|\/|\ /|\/|\
     /|\/|\/|\ /|\   /  \_-__\   /|\/|\ /|\/|\/|\ /|\/|\
     /|\/|\/|\ /|\   |[]| [] |   /|\/|\ /|\/|\/|\ /|\/|\
-
-
-_© 2018, Actonate IT Solutions Pvt Ltd._
