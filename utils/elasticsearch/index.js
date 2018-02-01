@@ -24,6 +24,12 @@ class ElasticsearchUtility {
         .bind(this),
       search: this
         .searchResolver
+        .bind(this),
+      raw: this
+        .rawResolver
+        .bind(this),
+      bulk: this
+        .bulkResolver
         .bind(this)
     };
   }
@@ -57,6 +63,25 @@ class ElasticsearchUtility {
     });
     return resolvedType;
   }
+  rawResolver(resolverName, type, model, inputSchema) {
+    const client = this.client;
+    let args = inputSchema.args;
+    let schema = model.schema;
+    let modelName = schema.name;
+    args = {
+      ...args
+    };
+
+    let argsObjects = Types.generateArgs(args, inputSchema.name);
+    return {
+      type: Types.Boolean,
+      args: argsObjects,
+      resolve: new Resolver(resolverName, (_, args, ctx) => {
+        return client.search(modelName, args.input);
+      })
+    };
+    return
+  }
 
   indexResolver(resolverName, type, model, inputSchema) {
     const client = this.client;
@@ -72,6 +97,25 @@ class ElasticsearchUtility {
       type: Types.Boolean,
       args: argsObjects,
       resolve: new Resolver(resolverName, (_, args, ctx) => {
+        return client.index(modelName, args._id, args.input);
+      })
+    };
+  }
+  bulkResolver(resolverName, type, model, inputSchema) {
+    const client = this.client;
+    let args = inputSchema.args;
+    let schema = model.schema;
+    let modelName = schema.name;
+    args = {
+      ...args
+    };
+
+    let argsObjects = Types.generateArgs(args, inputSchema.name);
+    return {
+      type: Types.Boolean,
+      args: argsObjects,
+      resolve: new Resolver(resolverName, (_, args, ctx) => {
+
         return client.index(modelName, args._id, args.input);
       })
     };
@@ -276,6 +320,23 @@ class ElasticsearchUtility {
             }
           }
         })
+        // bulk: this.bulkResolver('elasticsearch.bulkIndex', Types.Boolean, model, {
+        //   args: {
+        //     operation_type: {
+        //       type: Types.Enum([modelName, 'operationType'].join(''), {
+        //         'INDEX': {
+        //           value: 'index'
+        //         },
+        //         'UPDATE': {
+        //           value: 'update'
+        //         },
+        //         'DELETE': {
+        //           value: 'delete'
+        //         }
+        //       })
+        //     }
+        //   }
+        // })
       }
     });
   }

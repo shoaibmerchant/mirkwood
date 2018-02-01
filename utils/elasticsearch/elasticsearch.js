@@ -9,13 +9,11 @@ export default class ElasticSearch {
       ].join(':')
     });
   }
-
   index(typeName, id, body) {
     return this
       .client
       .create({index: this.config.index, type: typeName, id: id, body: body});
   }
-
   search(modelName, match) {
     return new Promise((resolve, reject) => {
       this
