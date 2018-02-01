@@ -4,6 +4,7 @@ import Resolver from '../../lib/resolver';
 import Elasticsearch from './elasticsearch';
 import {GraphQLObjectType} from 'graphql';
 import queries from '../database/queries';
+import {set} from 'lodash'
 
 class ElasticsearchUtility {
   constructor({config}) {
@@ -93,8 +94,6 @@ class ElasticsearchUtility {
     }, ['defaultValue']); // sp that defaultValue is filtered out
   }
 
-  
-
   matchResolver(resolverName, type, model, inputSchema) {
     const client = this.client;
     let args = inputSchema.args;
@@ -173,15 +172,14 @@ class ElasticsearchUtility {
       type: resolvedType,
       args: argsObjects,
       resolve: new Resolver(resolverName, (_, args, ctx) => {
-        let range = {};
-        range[args.field] = {
-          gte: args.greaterThanEqual,
-          lte: args.lessThanEqual,
-          boost: args.boost
-        }
+        var result = {};
+        let arr = args.input;
+        arr.map(itm => {
+          set(result, itm.field + '.' + itm.operator, itm.value);
+        });
         let match = {
           query: {
-            range: range
+            range: result
           }
         }
         return client.search(modelName, match);
@@ -329,14 +327,25 @@ class ElasticsearchUtility {
         field: {
           type: Types.String
         },
-        greaterThanEqual: {
-          type: Types.Float
+        operator: {
+          type: Types.Enum([modelName, 'operator'].join(''), {
+            'GreaterThanEqual': {
+              value: 'gte'
+            },
+            'LessThanEqual': {
+              value: 'lte'
+            },
+            'LessThan': {
+              value: 'lt'
+            },
+            'GreaterThan': {
+              value: 'gt'
+            }
+          })
         },
-        lessThanEqual: {
-          type: Types.Float
-        },
-        boost: {
-          type: Types.Float
+        value: {
+          type: Types.Float,
+          defaultValue: 1
         }
       }
     });
@@ -362,7 +371,10 @@ class ElasticsearchUtility {
         range: this.rangeResolver('elasticsearch.range', type, model, {
           args: {
             input: {
-              type: rangeFieldType
+              type: Types.List(rangeFieldType)
+            },
+            boost: {
+              type: Types.Float
             }
           }
         }),
