@@ -154,7 +154,7 @@ class ElasticsearchUtility {
       args: argsObjects,
       resolve: new Resolver(resolverName, (_, args, ctx) => {
         let newfield = [];
-        args
+        args.input
           .fields
           .map(field => {
             let field_data = [field.name, field.boost].join('^')
@@ -163,9 +163,9 @@ class ElasticsearchUtility {
         let match = {
           query: {
             multi_match: {
-              query: args.query,
+              query: args.input.query,
               fields: newfield,
-              fuzziness: args.fuzziness || 2
+              fuzziness: args.input.fuzziness || 2
             }
           }
         }
@@ -190,7 +190,7 @@ class ElasticsearchUtility {
       args: argsObjects,
       resolve: new Resolver(resolverName, (_, args, ctx) => {
         let term = {};
-        term[args.field] = args.value;
+        term[args.input.field] = args.input.value;
         let match = {
           query: {
             terms: term
@@ -390,16 +390,16 @@ class ElasticsearchUtility {
         },
         operator: {
           type: Types.Enum([modelName, 'operator'].join(''), {
-            'GreaterThanEqual': {
+            'GREATERTHANEQUAL': {
               value: 'gte'
             },
-            'LessThanEqual': {
+            'LESSTHANEQUAL': {
               value: 'lte'
             },
-            'LessThan': {
+            'LESSTHAN': {
               value: 'lt'
             },
-            'GreaterThan': {
+            'GREATERTHAN': {
               value: 'gt'
             }
           })
