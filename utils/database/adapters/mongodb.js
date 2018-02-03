@@ -7,7 +7,7 @@ import { map, keys, values, mapValues } from 'lodash';
 class MongoDbDatabaseAdapter {
 
 	constructor(connection) {
-		this.db = MongoClient.connect(this._uri(connection));
+		this.client = MongoClient.connect(this._uri(connection));
 	}
 
 	_uri(connection) {
@@ -138,7 +138,7 @@ class MongoDbDatabaseAdapter {
 
 	all(datasource, args) {
 		let dbPromise = new Promise((resolve, reject) => {
-			this.db
+			this.client
 				.then(db => {
 					let collectionName = datasource.collection || datasource.table;
 					let collection = db.collection(collectionName);
@@ -186,7 +186,7 @@ class MongoDbDatabaseAdapter {
 
 	count(datasource, args) {
 		let dbPromise = new Promise((resolve, reject) => {
-			this.db
+			this.client
 				.then(db => {
 					let collectionName = datasource.collection || datasource.table;
 					let collection = db.collection(collectionName);
@@ -220,7 +220,7 @@ class MongoDbDatabaseAdapter {
 
 	one(datasource, find, args) {
 		let dbPromise = new Promise((resolve, reject) => {
-			this.db
+			this.client
 				.then(db => {
 					let collectionName = datasource.collection || datasource.table;
 					let collection = db.collection(collectionName);
@@ -245,7 +245,7 @@ class MongoDbDatabaseAdapter {
 
 	destroy(datasource, find, args) {
 		let dbPromise = new Promise((resolve, reject) => {
-			this.db
+			this.client
 				.then(db => {
 					let collectionName = datasource.collection || datasource.table;
 					let collection = db.collection(collectionName);
@@ -273,7 +273,7 @@ class MongoDbDatabaseAdapter {
 	create = (datasource, document, args) => {
 		let self = this;
 		let dbPromise = new Promise((resolve, reject) => {
-			this.db
+			this.client
 				.then(db => {
 					let collectionName = datasource.collection || datasource.table;
 					let collection = db.collection(collectionName);
@@ -291,7 +291,7 @@ class MongoDbDatabaseAdapter {
 
 	createMany(datasource, documents, args) {
 		let dbPromise = new Promise((resolve, reject) => {
-			this.db
+			this.client
 				.then(db => {
 					let collectionName = datasource.collection || datasource.table;
 					let collection = db.collection(collectionName);
@@ -310,7 +310,7 @@ class MongoDbDatabaseAdapter {
 
 	update(datasource, find, document, args) {
 		let dbPromise = new Promise((resolve, reject) => {
-			this.db
+			this.client
 				.then(db => {
 					let collectionName = datasource.collection || datasource.table;
 					let collection = db.collection(collectionName);
