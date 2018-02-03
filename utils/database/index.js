@@ -12,7 +12,11 @@ class DatabaseUtility {
 			...DatabaseQueries.resolvers(),
 			...DatabaseMutations.resolvers()
 		}
+
 		this.mutationResolvers = DatabaseMutations.resolvers();
+		this.context = {
+			connection: Database.getConnection
+		}
 	}
 
 	mutations(type, inputType, model) {

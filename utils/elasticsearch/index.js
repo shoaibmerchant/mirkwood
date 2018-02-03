@@ -32,6 +32,10 @@ class ElasticsearchUtility {
         .bulkResolver
         .bind(this)
     };
+
+    this.context = {
+			connection: this.client
+		}
   }
   queryReturnTypeGenerator(resolvedTypeName, type) {
     const resolvedType = Types.generateType({
