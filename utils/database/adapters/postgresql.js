@@ -7,7 +7,7 @@ import uuid from 'uuid';
 class PostgresqlDatabaseAdapter {
 
 	constructor(connection) {
-    this.db = knex({
+    this.client = knex({
       client: 'pg',
       connection: {
         host : connection.host || 'localhost',
@@ -168,7 +168,7 @@ class PostgresqlDatabaseAdapter {
 		let dbPromise = new Promise((resolve, reject) => {
       const tableName = datasource.table || datasource.collection;
 
-			this.db
+			this.client
 				.select()
 				.modify(queryBuilder => {
 					self._resolveColumns(args, queryBuilder);
@@ -220,7 +220,7 @@ class PostgresqlDatabaseAdapter {
 		let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
-      this.db.select().count().table(tableName)
+      this.client.select().count().table(tableName)
 				.modify(queryBuilder => {
 					if (args.find) {
 						self._resolveFind(args.find, queryBuilder)
@@ -245,7 +245,7 @@ class PostgresqlDatabaseAdapter {
     let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
-      this.db
+      this.client
 			.select()
 			.modify(queryBuilder => {
 				self._resolveColumns(args, queryBuilder);
@@ -273,7 +273,7 @@ class PostgresqlDatabaseAdapter {
 		let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
-      this.db(tableName).where(find).del()
+      this.client(tableName).where(find).del()
         .then((res) => {
           resolve(true);
         })
@@ -288,7 +288,7 @@ class PostgresqlDatabaseAdapter {
 
       row._id = uuid.v4();
 
-      this.db(tableName).insert(row)
+      this.client(tableName).insert(row)
         .then((res) => {
           return this.one(datasource, { _id: row._id })
         })
@@ -307,7 +307,7 @@ class PostgresqlDatabaseAdapter {
         return row;
       })
 
-      this.db(tableName).insert(rows)
+      this.client(tableName).insert(rows)
         .then(res => resolve(res.rowCount))
         .catch(reject);
 		});
@@ -318,7 +318,7 @@ class PostgresqlDatabaseAdapter {
     let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
-      this.db(tableName).where(find).update(row)
+      this.client(tableName).where(find).update(row)
         .then((res) => {
           resolve(true);
         })

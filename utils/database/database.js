@@ -12,8 +12,8 @@ class Database {
 		this.connections = {};
 	}
 
-	static getConnection = (datasource) => {
-		let connectionName = datasource.connection || process.env['NODE_ENV'] || 'development';
+	static getConnection = (name) => {
+		let connectionName = name || process.env['NODE_ENV'] || 'development';
 		let dbConnectionParams = Database.config[connectionName];
 		let dbAdapter = adapters[dbConnectionParams.adapter || DEFAULT_ADAPTER];
 
@@ -28,43 +28,43 @@ class Database {
 	}
 
 	static all = (datasource, args) => {
-		let dbConnection = Database.getConnection(datasource);
+		let dbConnection = Database.getConnection(datasource.connection);
 		return dbConnection.all(datasource, args);
 	}
 
 	static count = (datasource, args) => {
-		let dbConnection = Database.getConnection(datasource);
+		let dbConnection = Database.getConnection(datasource.connection);
 		return dbConnection.count(datasource, args);
 	}
 
 	static create = (datasource, row, args) => {
-		let dbConnection = Database.getConnection(datasource);
+		let dbConnection = Database.getConnection(datasource.connection);
 		row = Database.extend('create', row, datasource);
 
 		return dbConnection.create(datasource, row, args);
 	}
 
 	static createMany = (datasource, rows, args) => {
-		let dbConnection = Database.getConnection(datasource);
+		let dbConnection = Database.getConnection(datasource.connection);
 		rows = Database.extend('create', rows, datasource);
 
 		return dbConnection.createMany(datasource, rows, args);
 	}
 
 	static update = (datasource, find, row, args) => {
-		let dbConnection = Database.getConnection(datasource);
+		let dbConnection = Database.getConnection(datasource.connection);
 		row = Database.extend('update', row, datasource);
 
 		return dbConnection.update(datasource, find, row, args);
 	}
 
 	static destroy = (datasource, find, args) => {
-		let dbConnection = Database.getConnection(datasource);
+		let dbConnection = Database.getConnection(datasource.connection);
 		return dbConnection.destroy(datasource, find, args);
 	}
 
 	static one = (datasource, find, args) => {
-		let dbConnection = Database.getConnection(datasource);
+		let dbConnection = Database.getConnection(datasource.connection);
 		return dbConnection.one(datasource, find, args);
 	}
 
