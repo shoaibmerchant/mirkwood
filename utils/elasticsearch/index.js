@@ -4,7 +4,7 @@ import Resolver from '../../lib/resolver';
 import Elasticsearch from './elasticsearch';
 import {GraphQLObjectType} from 'graphql';
 import queries from '../database/queries';
-import {set} from 'lodash'
+import {set,map} from 'lodash'
 
 class ElasticsearchUtility {
   constructor({config}) {
@@ -84,7 +84,6 @@ class ElasticsearchUtility {
         return client.search(modelName, args.input);
       })
     };
-    return
   }
 
   indexResolver(resolverName, type, model, inputSchema) {
@@ -158,18 +157,16 @@ class ElasticsearchUtility {
       args: argsObjects,
       resolve: new Resolver(resolverName, (_, args, ctx) => {
         let newfield = [];
-        args
-          .fields
-          .map(field => {
+          map(args.input.fields, field => {
             let field_data = [field.name, field.boost].join('^')
             newfield.push(field_data);
           });
         let match = {
           query: {
             multi_match: {
-              query: args.query,
+              query: args.input.query,
               fields: newfield,
-              fuzziness: args.fuzziness || 2
+              fuzziness: args.input.fuzziness || 2
             }
           }
         }
@@ -194,7 +191,7 @@ class ElasticsearchUtility {
       args: argsObjects,
       resolve: new Resolver(resolverName, (_, args, ctx) => {
         let term = {};
-        term[args.field] = args.value;
+        term[args.input.field] = args.input.value;
         let match = {
           query: {
             terms: term
@@ -394,16 +391,16 @@ class ElasticsearchUtility {
         },
         operator: {
           type: Types.Enum([modelName, 'operator'].join(''), {
-            'GreaterThanEqual': {
+            'GREATERTHANEQUAL': {
               value: 'gte'
             },
-            'LessThanEqual': {
+            'LESSTHANEQUAL': {
               value: 'lte'
             },
-            'LessThan': {
+            'LESSTHAN': {
               value: 'lt'
             },
-            'GreaterThan': {
+            'GREATERTHAN': {
               value: 'gt'
             }
           })
