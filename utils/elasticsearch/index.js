@@ -4,7 +4,7 @@ import Resolver from '../../lib/resolver';
 import Elasticsearch from './elasticsearch';
 import {GraphQLObjectType} from 'graphql';
 import queries from '../database/queries';
-import {set} from 'lodash'
+import {set,map} from 'lodash'
 
 class ElasticsearchUtility {
   constructor({config}) {
@@ -32,6 +32,10 @@ class ElasticsearchUtility {
         .bulkResolver
         .bind(this)
     };
+
+    this.context = {
+			connection: this.client
+		}
   }
   queryReturnTypeGenerator(resolvedTypeName, type) {
     const resolvedType = Types.generateType({
@@ -154,9 +158,7 @@ class ElasticsearchUtility {
       args: argsObjects,
       resolve: new Resolver(resolverName, (_, args, ctx) => {
         let newfield = [];
-        args.input
-          .fields
-          .map(field => {
+          map(args.input.fields, field => {
             let field_data = [field.name, field.boost].join('^')
             newfield.push(field_data);
           });
