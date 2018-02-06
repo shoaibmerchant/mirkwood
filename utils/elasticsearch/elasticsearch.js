@@ -4,7 +4,8 @@ export default class ElasticSearch {
   constructor({config}) {
     this.config = config[process.env['NODE_ENV'] || 'development'];
     if (!this.config) {
-      this.config = config['development'];
+      this.client = null;
+      return;
     }
     this.client = new elasticsearch.Client({
       host: [

@@ -84,7 +84,6 @@ class ElasticsearchUtility {
         return client.search(modelName, args.input);
       })
     };
-    return
   }
 
   indexResolver(resolverName, type, model, inputSchema) {
