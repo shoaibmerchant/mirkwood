@@ -90,6 +90,13 @@ class MongoDbDatabaseAdapter {
 				subQuery.value = true;
 			}
 
+			if (subQuery.operator === '$iregex') {
+				subQuery.operator = '$regex';
+				subQuery.options = subQuery.options || {
+					match: 'i'
+				};
+			}
+
 			let resolvedSubQuery = {};
 			resolvedSubQuery[key] = {};
 			resolvedSubQuery[key][subQuery.operator] = subQueryValue;
