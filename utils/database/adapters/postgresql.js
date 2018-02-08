@@ -36,6 +36,8 @@ class PostgresqlDatabaseAdapter {
 				return '<=';
 			case '$like':
 				return 'like';
+			case '$ilike':
+				return 'ilike';
 			case '$nin':
 				return 'not in';
 			case '$in':
@@ -89,6 +91,11 @@ class PostgresqlDatabaseAdapter {
 
 				if (subQuery.operator === '$regex') {
 					subQuery.operator = '$like'
+					subQueryValue = `%${subQueryValue}%`;
+				}
+
+				if (subQuery.operator === '$iregex') {
+					subQuery.operator = '$ilike'
 					subQueryValue = `%${subQueryValue}%`;
 				}
 
