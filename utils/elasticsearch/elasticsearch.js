@@ -17,13 +17,11 @@ export default class ElasticSearch {
     return this
       .search(typeName, {
       "query": {
-        "match": {
-          "_id": id
-        }
+        "term" : { "_id" : id } 
       }
     })
       .then(res => {
-        if (res.hits.total !== 0) {
+        if (res.total !== 0) {
           return this
             .client
             .update({index: this.config.index, type: typeName, id: id, body: body});

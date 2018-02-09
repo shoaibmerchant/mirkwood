@@ -158,7 +158,7 @@ class ElasticsearchUtility {
       resolve: new Resolver(resolverName, (_, args, ctx) => {
         let newfield = [];
           map(args.input.fields, field => {
-            let field_data = [field.name, field.boost].join('^')
+            let field_data = [field.name, field.boost||1].join('^')
             newfield.push(field_data);
           });
         let match = {
