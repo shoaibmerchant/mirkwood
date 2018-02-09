@@ -189,6 +189,11 @@ class PostgresqlDatabaseAdapter {
 					if (args.query) {
 						self._resolveQuery(args.query, queryBuilder)
 					}
+
+					// handle soft deletion
+					if (datasource.skip_deleted) {
+						queryBuilder.whereNot('_deleted', true);
+					}
         })
 				.modify(queryBuilder => {
 					if (args.groupBy) {
@@ -236,6 +241,11 @@ class PostgresqlDatabaseAdapter {
 					if (args.query) {
 						self._resolveQuery(args.query, queryBuilder)
 					}
+
+					// handle soft deletion
+					if (datasource.skip_deleted) {
+						queryBuilder.whereNot('_deleted', true);
+					}
 				})
         .then((res) => {
           resolve(res[0].count);
@@ -262,10 +272,17 @@ class PostgresqlDatabaseAdapter {
 				if (find) {
 					queryBuilder.where(find)
 				}
+				// handle soft deletion
+				if (datasource.skip_deleted) {
+					queryBuilder.whereNot('_deleted', true);
+				}
 			})
 			// .where(find ? find : null)
 			.limit(1)
         .then((res) => {
+					if (!res[0]) {
+						resolve(null)
+					}
 					const row = this._transformRow(res[0]);
           resolve(row);
         })
@@ -281,6 +298,19 @@ class PostgresqlDatabaseAdapter {
       let tableName = datasource.table || datasource.collection;
 
       this.client(tableName).where(find).del()
+        .then((res) => {
+          resolve(true);
+        })
+        .catch(reject);
+		});
+		return dbPromise;
+	}
+
+	delete(datasource, find, args) {
+		let dbPromise = new Promise((resolve, reject) => {
+      let tableName = datasource.table || datasource.collection;
+
+      this.client(tableName).where(find).update({ _deleted: true })
         .then((res) => {
           resolve(true);
         })

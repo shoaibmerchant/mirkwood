@@ -64,6 +64,17 @@ class DatabaseMutations {
 							type: Database.generateFindType(model)
 						}
 					}
+				}),
+				delete: this.deleteResolver('database.delete', type, model, {
+					args: {
+						_id: {
+							type: Types.ID,
+							deprecationReason: 'Use find argument instead of _id as it supports more options'
+						},
+						find: {
+							type: Database.generateFindType(model)
+						}
+					}
 				})
 			}
 		});
@@ -148,6 +159,44 @@ class DatabaseMutations {
 
 				let result = new Promise((resolve, reject) => {
 					Database.update(modelDatasource, find, input)
+						.then(res => {
+							resolve(res);
+						});
+				})
+				return result;
+			})
+		};
+	}
+
+	deleteResolver(resolverName, type, model, inputSchema) {
+		let modelDatasource = model.schema.datasource;
+		let args = inputSchema.args;
+
+		// check if where is not specified then generate default
+		if (!args.find && !args._id) {
+			args.find = {
+				fields: {
+					_id: {
+						type: Types.ID
+					}
+				}
+			};
+		}
+
+		let argsObjects = Types.generateArgs(args, inputSchema.name);
+
+		return {
+			type: GraphQLBoolean,
+			args: argsObjects,
+			resolve: new Resolver(resolverName, (_, args) => {
+        if (!args.find) {
+					args.find = { _id: args._id };
+				}
+
+				let find = args.find;
+
+				let result = new Promise((resolve, reject) => {
+					Database.delete(modelDatasource, find)
 						.then(res => {
 							resolve(res);
 						});

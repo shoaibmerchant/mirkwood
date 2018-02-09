@@ -179,6 +179,11 @@ class MongoDbDatabaseAdapter {
 						})
 					}
 
+					// handle soft deletion
+					if (datasource.skip_deleted) {
+						resolvedFind._deleted = { $not: { $eq: true } };
+					}
+
 					return collection.find(resolvedFind).sort(sort).skip(args.skip).limit(args.limit).toArray();
 				})
 				.then(res => {
@@ -213,6 +218,11 @@ class MongoDbDatabaseAdapter {
 						resolvedFind = this._resolveQuery(query);
 					}
 
+					// handle soft deletion
+					if (datasource.skip_deleted) {
+						resolvedFind._deleted = { $not: { $eq: true } };
+					}
+
 					return collection.count(resolvedFind);
 				})
 				.then(res => {
@@ -236,6 +246,11 @@ class MongoDbDatabaseAdapter {
 
 					if (resolvedFind._id) {
 						resolvedFind._id = new ObjectID(resolvedFind._id);
+					}
+
+					// handle soft deletion
+					if (datasource.skip_deleted) {
+						resolvedFind._deleted = { $not: { $eq: true } };
 					}
 
 					return collection.findOne(resolvedFind);
@@ -329,6 +344,42 @@ class MongoDbDatabaseAdapter {
 					return collection.updateOne(
 						find,
 						{ $set: document },
+						{
+							upsert: true
+						}
+					);
+				})
+				.then(res => {
+					if (res.modifiedCount > 0) {
+						resolve(true);
+					} else {
+						resolve(false);
+					}
+				})
+				.catch(err => {
+					reject(err);
+				})
+		});
+		return dbPromise;
+	}
+
+	delete(datasource, find, document, args) {
+		let dbPromise = new Promise((resolve, reject) => {
+			this.client
+				.then(db => {
+					let collectionName = datasource.collection || datasource.table;
+					let collection = db.collection(collectionName);
+
+					if (find._id) {
+						find._id = new ObjectID(find._id);
+					}
+
+					return collection.updateOne(
+						find,
+						{ $set: {
+								_deleted: true
+							}
+						},
 						{
 							upsert: true
 						}
