@@ -24,7 +24,7 @@ export default class ElasticSearch {
         if (res.total !== 0) {
           return this
             .client
-            .update({index: this.config.index, type: typeName, id: id, body: body});
+            .update({index: this.config.index, type: typeName, id: id, body:{doc:body} });
         }
         return this
           .client
