@@ -297,7 +297,13 @@ class ElasticsearchUtility {
             dis_max: {
               tie_breaker: args.tie_breaker || 0,
               boost: args.boost,
-              queries: query
+              queries: [
+                {
+                  bool:{
+                    must:[query]
+                  }
+                }
+              ]
             }
           }
         }
