@@ -300,7 +300,7 @@ class ElasticsearchUtility {
               queries: [
                 {
                   bool:{
-                    must:[query]
+                    must:query
                   }
                 }
               ]
