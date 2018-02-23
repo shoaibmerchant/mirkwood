@@ -30,6 +30,13 @@ class DatabaseMutations {
 					args: {
 						input: {
 							type: inputType
+						},
+						acl: {
+							type: [Types.AclType],
+							defaultValue: false
+						},
+						method: {
+							type: Types.String
 						}
 					}
 				}),
@@ -107,17 +114,18 @@ class DatabaseMutations {
 			args: argsObjects,
 			resolve: new Resolver(resolverName, (_, args) => {
 				let input = args.input; // take first property
-
+				let acl = args.acl;
+				let method = args.method;
 				let result = new Promise((resolve, reject) => {
 
 					if (Array.isArray(input)) {
-						Database.createMany(modelDatasource, input)
+						Database.createMany(modelDatasource, input, {acl , method})
 							.then(count => {
 								resolve(count);
 							})
 							.catch(reject);
 					} else {
-						Database.create(modelDatasource, input)
+						Database.create(modelDatasource, input, {acl , method})
 							.then(res => {
 								resolve(res);
 							})

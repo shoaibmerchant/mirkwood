@@ -1,6 +1,8 @@
 import adapters from './adapters';
 import moment from 'moment';
 import Types from '../../lib/types';
+import { get } from 'lodash';
+import { UnknownError, ForbiddenError, AuthenticationRequiredError } from '../../errors';
 
 const DEFAULT_CONNECTION = 'development';
 const DEFAULT_ADAPTER = 'postgresql';
@@ -10,6 +12,30 @@ class Database {
 	static init({ config }) {
 		this.config = config;
 		this.connections = {};
+	}
+
+	static _checkAcl = (acl, method, entityToCheck) => {
+		let allowed = true;
+		if (acl && method) {
+			allowed = false;
+			console.log("entityToCheck: ", entityToCheck);
+			for (let idx = 0; idx < acl.length; idx++) {
+				let eachAcl = acl[idx];
+				let resolvers = eachAcl.resolvers;
+				let entities = eachAcl.entities;
+				if (resolvers[0] === '*' || resolvers.indexOf(method) > -1) {
+					if (!entityToCheck) {
+						allowed = true;
+						break;
+					} else if (entities[0] === '*' || entities.indexOf(entityToCheck) > -1) {
+						allowed = true;
+						break;
+					}
+				}
+			}
+		}
+
+		return allowed;
 	}
 
 	static getConnection = (name) => {
@@ -29,7 +55,14 @@ class Database {
 
 	static all = (datasource, args) => {
 		let dbConnection = Database.getConnection(datasource.connection);
-		return dbConnection.all(datasource, args);
+		let entityToCheck = get(args, 'find._id');
+		let allowed = Database._checkAcl(args.acl, args.method, entityToCheck);
+
+		if (allowed) {
+			return dbConnection.all(datasource, args);
+		} else {
+			throw new ForbiddenError();
+		}
 	}
 
 	static count = (datasource, args) => {
@@ -40,8 +73,17 @@ class Database {
 	static create = (datasource, row, args) => {
 		let dbConnection = Database.getConnection(datasource.connection);
 		row = Database.extend('create', row, datasource);
+		let allowed = true;
+		if (args) {
+			let entityToCheck = false
+			allowed = Database._checkAcl(args.acl, args.method, entityToCheck);
+		}
 
-		return dbConnection.create(datasource, row, args);
+		if (allowed) {
+			return dbConnection.create(datasource, row, args);
+		} else {
+			throw new ForbiddenError();
+		}
 	}
 
 	static createMany = (datasource, rows, args) => {
@@ -70,7 +112,18 @@ class Database {
 
 	static one = (datasource, find, args) => {
 		let dbConnection = Database.getConnection(datasource.connection);
-		return dbConnection.one(datasource, find, args);
+		let allowed = true;
+		if (args) {
+			let entityToCheck = get(find, '_id');
+			allowed = Database._checkAcl(args.acl, args.method, entityToCheck);
+		}
+
+		if (allowed) {
+			return dbConnection.one(datasource, find, args);
+		} else {
+			throw new ForbiddenError();
+		}
+
 	}
 
 	static extend = (mode, row, datasource) => {

@@ -186,6 +186,13 @@ class DatabaseQueries {
         type: Types.Int,
         defaultValue: 0
       },
+			acl: {
+				type: [Types.AclType],
+				defaultValue: false
+			},
+			method: {
+				type: Types.String
+			},
       limit: {
         type: Types.Int,
         defaultValue: 100
@@ -343,6 +350,13 @@ class DatabaseQueries {
 			...args,
 			aggregate: {
 				type: Types.AggregateType
+			},
+			acl: {
+				type: [Types.AclType],
+				defaultValue: false
+			},
+			method: {
+				type: Types.String
 			}
 		}
     // check if where is not specified then generate default
@@ -363,11 +377,13 @@ class DatabaseQueries {
 			args: argsObjects,
       resolve: new Resolver(resolverName, (_, args) => {
 				const aggregate = args.aggregate;
+				const acl = args.acl;
+				const method = args.method;
         if (args._id) {
 					args.find = { _id: args._id };
 					delete args._id;
 				}
-        return Database.one(modelDatasource, args.find, { aggregate });
+        return Database.one(modelDatasource, args.find, { aggregate, acl, method });
       })
 		};
   }
