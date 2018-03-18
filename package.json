@@ -1,6 +1,6 @@
 {
   "name": "@actonate/mirkwood",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "GraphQL based Rapid Server-side Development framework",
   "main": "dist/index.js",
   "scripts": {
@@ -27,6 +27,7 @@
     "graphql": "^0.11.7",
     "graphql-tools": "^1.1.0",
     "html-to-text": "^3.3.0",
+    "jsonwebtoken": "^8.2.0",
     "knex": "^0.14.0",
     "lodash": "^4.17.4",
     "mime": "^2.0.3",
