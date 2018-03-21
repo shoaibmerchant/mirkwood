@@ -314,7 +314,7 @@ class DatabaseQueries {
 
 				find[field] = joinValue.toString();
 
-				return Database.one(modelDatasource, find);
+				return Database.one(modelDatasource, { find });
       })
 		};
   }
