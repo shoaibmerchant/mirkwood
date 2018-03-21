@@ -9,7 +9,7 @@ class Email {
     this.config = config;
   }
 
-  static send({ template, dir }, { from, to, subject, bcc, cc }, input) {
+  static send({ template, dir }, { from, to, subject, bcc, cc, attachments }, input) {
     let transporter = this._createTransport();
     let emailConfig = this._getEmailConfig();
 
@@ -23,7 +23,8 @@ class Email {
             bcc: bcc,
             subject: subject || 'New Mail',
             text: htmlToText.fromString(html),
-            html: html
+            html: html,
+            attachments: attachments
           };
           return transporter.sendMail(mailOptions);
         })

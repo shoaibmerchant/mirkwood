@@ -67,9 +67,9 @@ class Database {
 		return dbConnection.delete(datasource, find, args, allowedEntities);
 	}
 
-	static one = (datasource, find, args, { allowedEntities }) => {
+	static one = (datasource, args, { allowedEntities }) => {
 		let dbConnection = Database.getConnection(datasource.connection);
-		return dbConnection.one(datasource, find, args, allowedEntities);
+		return dbConnection.one(datasource, args, allowedEntities);
 	}
 
 	static extend = (mode, row, datasource) => {

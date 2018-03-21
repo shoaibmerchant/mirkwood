@@ -271,9 +271,10 @@ class PostgresqlDatabaseAdapter {
 		return dbPromise;
 	}
 
-	one(datasource, find, args, allowedEntities) {
+	one(datasource, args, allowedEntities) {
 		const self = this;
     let dbPromise = new Promise((resolve, reject) => {
+			const { find, query } = args;
       let tableName = datasource.table || datasource.collection;
 
       this.client
@@ -286,6 +287,11 @@ class PostgresqlDatabaseAdapter {
 				if (find) {
 					queryBuilder.where(find)
 				}
+
+				if (query) {
+					self._resolveQuery(query, queryBuilder)
+				}
+
 				// handle soft deletion
 				if (datasource.skip_deleted) {
 					queryBuilder.whereNot('_deleted', true);
@@ -327,7 +333,6 @@ class PostgresqlDatabaseAdapter {
 			})
 			.del()
         .then((res) => {
-					console.log("res : ", res);
 					if (res === 0) {
 						resolve(false);
 					}

@@ -40,7 +40,20 @@ class EmailUtility {
 		        },
 		        bcc: {
 		          type: [Types.String]
-		        }
+		        },
+						attachments: {
+							type: Types.List(Types.generateInputType({
+								name: 'AttachmentInputType',
+								fields: {
+									filename: {
+										type: Types.String
+									},
+									path: {
+										type: Types.String
+									}
+								}
+							}))
+						}
 		      }
 				}
 	    }
