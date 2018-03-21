@@ -14,30 +14,6 @@ class Database {
 		this.connections = {};
 	}
 
-	static _checkAcl = (acl, method, entityToCheck) => {
-		let allowed = true;
-		if (acl && method) {
-			allowed = false;
-			console.log("entityToCheck: ", entityToCheck);
-			for (let idx = 0; idx < acl.length; idx++) {
-				let eachAcl = acl[idx];
-				let resolvers = eachAcl.resolvers;
-				let entities = eachAcl.entities;
-				if (resolvers[0] === '*' || resolvers.indexOf(method) > -1) {
-					if (!entityToCheck) {
-						allowed = true;
-						break;
-					} else if (entities[0] === '*' || entities.indexOf(entityToCheck) > -1) {
-						allowed = true;
-						break;
-					}
-				}
-			}
-		}
-
-		return allowed;
-	}
-
 	static getConnection = (name) => {
 		let connectionName = name || process.env['NODE_ENV'] || 'development';
 		let dbConnectionParams = Database.config[connectionName];
@@ -53,77 +29,47 @@ class Database {
 		return newConnection;
 	}
 
-	static all = (datasource, args) => {
+	static all = (datasource, args, { allowedEntities }) => {
 		let dbConnection = Database.getConnection(datasource.connection);
-		let entityToCheck = get(args, 'find._id');
-		let allowed = Database._checkAcl(args.acl, args.method, entityToCheck);
-
-		if (allowed) {
-			return dbConnection.all(datasource, args);
-		} else {
-			throw new ForbiddenError();
-		}
+		return dbConnection.all(datasource, args, allowedEntities);
 	}
 
-	static count = (datasource, args) => {
+	static count = (datasource, args, { allowedEntities }) => {
 		let dbConnection = Database.getConnection(datasource.connection);
-		return dbConnection.count(datasource, args);
+		return dbConnection.count(datasource, args, allowedEntities);
 	}
 
 	static create = (datasource, row, args) => {
 		let dbConnection = Database.getConnection(datasource.connection);
 		row = Database.extend('create', row, datasource);
-		let allowed = true;
-		if (args) {
-			let entityToCheck = false
-			allowed = Database._checkAcl(args.acl, args.method, entityToCheck);
-		}
-
-		if (allowed) {
-			return dbConnection.create(datasource, row, args);
-		} else {
-			throw new ForbiddenError();
-		}
+		return dbConnection.create(datasource, row, args);
 	}
 
 	static createMany = (datasource, rows, args) => {
 		let dbConnection = Database.getConnection(datasource.connection);
 		rows = Database.extend('create', rows, datasource);
-
 		return dbConnection.createMany(datasource, rows, args);
 	}
 
-	static update = (datasource, find, row, args) => {
+	static update = (datasource, find, row, args, { allowedEntities }) => {
 		let dbConnection = Database.getConnection(datasource.connection);
 		row = Database.extend('update', row, datasource);
-
-		return dbConnection.update(datasource, find, row, args);
+		return dbConnection.update(datasource, find, row, args, allowedEntities);
 	}
 
-	static destroy = (datasource, find, args) => {
+	static destroy = (datasource, find, args, { allowedEntities }) => {
 		let dbConnection = Database.getConnection(datasource.connection);
-		return dbConnection.destroy(datasource, find, args);
+		return dbConnection.destroy(datasource, find, args, allowedEntities);
 	}
 
-	static delete = (datasource, find, args) => {
+	static delete = (datasource, find, args, { allowedEntities }) => {
 		let dbConnection = Database.getConnection(datasource.connection);
-		return dbConnection.delete(datasource, find, args);
+		return dbConnection.delete(datasource, find, args, allowedEntities);
 	}
 
-	static one = (datasource, find, args) => {
+	static one = (datasource, find, args, { allowedEntities }) => {
 		let dbConnection = Database.getConnection(datasource.connection);
-		let allowed = true;
-		if (args) {
-			let entityToCheck = get(find, '_id');
-			allowed = Database._checkAcl(args.acl, args.method, entityToCheck);
-		}
-
-		if (allowed) {
-			return dbConnection.one(datasource, find, args);
-		} else {
-			throw new ForbiddenError();
-		}
-
+		return dbConnection.one(datasource, find, args, allowedEntities);
 	}
 
 	static extend = (mode, row, datasource) => {

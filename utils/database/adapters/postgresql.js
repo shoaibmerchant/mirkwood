@@ -170,7 +170,7 @@ class PostgresqlDatabaseAdapter {
 		};
 	}
 
-	all(datasource, args) {
+	all(datasource, args, allowedEntities) {
 		let self = this;
 		let dbPromise = new Promise((resolve, reject) => {
       const tableName = datasource.table || datasource.collection;
@@ -195,6 +195,13 @@ class PostgresqlDatabaseAdapter {
 						queryBuilder.whereNot('_deleted', true);
 					}
         })
+				.modify(queryBuilder => {
+
+					// handle acl allowed entities
+					if (allowedEntities && allowedEntities.length !== 0 && allowedEntities[0] !== '*') {
+						queryBuilder.whereIn('_id', allowedEntities);
+					}
+				})
 				.modify(queryBuilder => {
 					if (args.groupBy) {
 						args.groupBy.map(groupBy => {
@@ -226,7 +233,7 @@ class PostgresqlDatabaseAdapter {
 		return dbPromise;
 	}
 
-	count(datasource, args) {
+	count(datasource, args, allowedEntities) {
 		let self = this;
 
 		let dbPromise = new Promise((resolve, reject) => {
@@ -247,6 +254,13 @@ class PostgresqlDatabaseAdapter {
 						queryBuilder.whereNot('_deleted', true);
 					}
 				})
+				.modify(queryBuilder => {
+
+					// handle acl allowed entities
+					if (allowedEntities && allowedEntities.length !== 0 && allowedEntities[0] !== '*') {
+						queryBuilder.whereIn('_id', allowedEntities);
+					}
+				})
         .then((res) => {
           resolve(res[0].count);
         })
@@ -257,7 +271,7 @@ class PostgresqlDatabaseAdapter {
 		return dbPromise;
 	}
 
-	one(datasource, find, args) {
+	one(datasource, find, args, allowedEntities) {
 		const self = this;
     let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
@@ -277,6 +291,13 @@ class PostgresqlDatabaseAdapter {
 					queryBuilder.whereNot('_deleted', true);
 				}
 			})
+			.modify(queryBuilder => {
+
+				// handle acl allowed entities
+				if (allowedEntities && allowedEntities.length !== 0 && allowedEntities[0] !== '*') {
+					queryBuilder.whereIn('_id', allowedEntities);
+				}
+			})
 			// .where(find ? find : null)
 			.limit(1)
         .then((res) => {
@@ -293,26 +314,49 @@ class PostgresqlDatabaseAdapter {
 		return dbPromise;
 	}
 
-	destroy(datasource, find, args) {
+	destroy(datasource, find, args, allowedEntities) {
 		let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
-      this.client(tableName).where(find).del()
+      this.client(tableName)
+			.where(find)
+			.modify(queryBuilder => {
+				if (allowedEntities && allowedEntities.length !== 0 && allowedEntities[0] !== '*') {
+					queryBuilder.whereIn('_id', allowedEntities);
+				}
+			})
+			.del()
         .then((res) => {
-          resolve(true);
+					console.log("res : ", res);
+					if (res === 0) {
+						resolve(false);
+					}
+
+					resolve(true);
         })
         .catch(reject);
 		});
 		return dbPromise;
 	}
 
-	delete(datasource, find, args) {
+	delete(datasource, find, args, allowedEntities) {
 		let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
-      this.client(tableName).where(find).update({ _deleted: true })
+      this.client(tableName)
+			.where(find)
+			.modify(queryBuilder => {
+				if (allowedEntities && allowedEntities.length !== 0 && allowedEntities[0] !== '*') {
+					queryBuilder.whereIn('_id', allowedEntities);
+				}
+			})
+			.update({ _deleted: true })
         .then((res) => {
-          resolve(true);
+					if (res === 0) {
+						resolve(false);
+					}
+
+					resolve(true);
         })
         .catch(reject);
 		});
@@ -351,13 +395,24 @@ class PostgresqlDatabaseAdapter {
 		return dbPromise;
 	}
 
-	update(datasource, find, row, args) {
+	update(datasource, find, row, args, allowedEntities) {
     let dbPromise = new Promise((resolve, reject) => {
       let tableName = datasource.table || datasource.collection;
 
-      this.client(tableName).where(find).update(row)
+      this.client(tableName)
+			.where(find)
+			.modify(queryBuilder => {
+				if (allowedEntities && allowedEntities.length !== 0 && allowedEntities[0] !== '*') {
+					queryBuilder.whereIn('_id', allowedEntities);
+				}
+			})
+			.update(row)
         .then((res) => {
-          resolve(true);
+					if (res === 0) {
+						resolve(false);
+					}
+
+					resolve(true);
         })
         .catch(reject);
 		});

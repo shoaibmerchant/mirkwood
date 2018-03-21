@@ -186,13 +186,6 @@ class DatabaseQueries {
         type: Types.Int,
         defaultValue: 0
       },
-			acl: {
-				type: [Types.AclType],
-				defaultValue: false
-			},
-			method: {
-				type: Types.String
-			},
       limit: {
         type: Types.Int,
         defaultValue: 100
@@ -220,8 +213,9 @@ class DatabaseQueries {
 		return {
 			type: Types.List(type),
 			args: argsObjects,
-      resolve: new Resolver(resolverName, (_, args) => {
-        return Database.all(modelDatasource, args);
+      resolve: new Resolver(resolverName, (_, args, ctx) => {
+				ctx = ctx || {};
+        return Database.all(modelDatasource, args, { allowedEntities: ctx.allowedEntities });
       })
 		};
   }
@@ -259,7 +253,7 @@ class DatabaseQueries {
 		return {
 			type: Types.List(type),
 			args: argsObjects,
-      resolve: new Resolver(resolverName, (obj, args) => {
+      resolve: new Resolver(resolverName, (obj, args, ctx) => {
 				let field = args.field;
 				let joinBy = args.joinBy;
 				let joinValue = obj[joinBy];
@@ -284,7 +278,7 @@ class DatabaseQueries {
 					dbArgs.find[field] = joinValue.toString();
 				}
 
-				return Database.all(modelDatasource, dbArgs);
+				return Database.all(modelDatasource, dbArgs, { allowedEntities: ctx.allowedEntities });
       })
 		};
   }
@@ -305,7 +299,7 @@ class DatabaseQueries {
 		return {
 			type: type,
 			args: argsObjects,
-      resolve: new Resolver(resolverName, (obj, args) => {
+      resolve: new Resolver(resolverName, (obj, args, ctx) => {
 				let field = args.field;
 				let joinBy = args.joinBy;
 				let joinValue = obj[joinBy];
@@ -318,7 +312,7 @@ class DatabaseQueries {
 
 				find[field] = joinValue.toString();
 
-				return Database.one(modelDatasource, find);
+				return Database.one(modelDatasource, find, {}, { allowedEntities: ctx.allowedEntities });
       })
 		};
   }
@@ -336,8 +330,9 @@ class DatabaseQueries {
 		return {
 			type: Types.Int,
 			args: argsObjects,
-      resolve: new Resolver(resolverName, (_, args) => {
-        return Database.count(modelDatasource, args);
+      resolve: new Resolver(resolverName, (_, args, ctx) => {
+				ctx = ctx || {};
+        return Database.count(modelDatasource, args, { allowedEntities: ctx.allowedEntities });
       })
 		};
   }
@@ -350,13 +345,6 @@ class DatabaseQueries {
 			...args,
 			aggregate: {
 				type: Types.AggregateType
-			},
-			acl: {
-				type: [Types.AclType],
-				defaultValue: false
-			},
-			method: {
-				type: Types.String
 			}
 		}
     // check if where is not specified then generate default
@@ -375,7 +363,7 @@ class DatabaseQueries {
 		return {
 			type: type,
 			args: argsObjects,
-      resolve: new Resolver(resolverName, (_, args) => {
+      resolve: new Resolver(resolverName, (_, args, ctx) => {
 				const aggregate = args.aggregate;
 				const acl = args.acl;
 				const method = args.method;
@@ -383,7 +371,8 @@ class DatabaseQueries {
 					args.find = { _id: args._id };
 					delete args._id;
 				}
-        return Database.one(modelDatasource, args.find, { aggregate, acl, method });
+				ctx = ctx || {};
+        return Database.one(modelDatasource, args.find, { aggregate, acl, method }, { allowedEntities: ctx.allowedEntities });
       })
 		};
   }

@@ -30,13 +30,6 @@ class DatabaseMutations {
 					args: {
 						input: {
 							type: inputType
-						},
-						acl: {
-							type: [Types.AclType],
-							defaultValue: false
-						},
-						method: {
-							type: Types.String
 						}
 					}
 				}),
@@ -157,16 +150,16 @@ class DatabaseMutations {
 		return {
 			type: GraphQLBoolean,
 			args: argsObjects,
-			resolve: new Resolver(resolverName, (_, args) => {
+			resolve: new Resolver(resolverName, (_, args, ctx) => {
 				if (!args.find) {
 					args.find = { _id: args._id };
 				}
 
 				let find = args.find;
 				let input = args.input;
-
+				ctx = ctx || {};
 				let result = new Promise((resolve, reject) => {
-					Database.update(modelDatasource, find, input)
+					Database.update(modelDatasource, find, input, args, { allowedEntities: ctx.allowedEntities })
 						.then(res => {
 							resolve(res);
 						});
@@ -196,15 +189,15 @@ class DatabaseMutations {
 		return {
 			type: GraphQLBoolean,
 			args: argsObjects,
-			resolve: new Resolver(resolverName, (_, args) => {
+			resolve: new Resolver(resolverName, (_, args, ctx) => {
         if (!args.find) {
 					args.find = { _id: args._id };
 				}
 
 				let find = args.find;
-
+				ctx = ctx || {};
 				let result = new Promise((resolve, reject) => {
-					Database.delete(modelDatasource, find)
+					Database.delete(modelDatasource, find, args, { allowedEntities: ctx.allowedEntities })
 						.then(res => {
 							resolve(res);
 						});
@@ -234,15 +227,15 @@ class DatabaseMutations {
 		return {
 			type: GraphQLBoolean,
 			args: argsObjects,
-			resolve: new Resolver(resolverName, (_, args) => {
+			resolve: new Resolver(resolverName, (_, args, ctx) => {
         if (!args.find) {
 					args.find = { _id: args._id };
 				}
-
+				ctx = ctx || {};
 				let find = args.find;
 
 				let result = new Promise((resolve, reject) => {
-					Database.destroy(modelDatasource, find)
+					Database.destroy(modelDatasource, find, args, { allowedEntities: ctx.allowedEntities })
 						.then(res => {
 							resolve(res);
 						});
