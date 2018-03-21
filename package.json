@@ -1,7 +1,7 @@
 {
   "name": "@actonate/mirkwood",
-  "version": "0.8.2",
-  "description": "GraphQL based Server-side Development framework, full of awesomeness.",
+  "version": "0.8.3",
+  "description": "GraphQL based Rapid Server-side Development framework",
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
