@@ -107,18 +107,16 @@ class DatabaseMutations {
 			args: argsObjects,
 			resolve: new Resolver(resolverName, (_, args) => {
 				let input = args.input; // take first property
-				let acl = args.acl;
-				let method = args.method;
 				let result = new Promise((resolve, reject) => {
 
 					if (Array.isArray(input)) {
-						Database.createMany(modelDatasource, input, {acl , method})
+						Database.createMany(modelDatasource, input)
 							.then(count => {
 								resolve(count);
 							})
 							.catch(reject);
 					} else {
-						Database.create(modelDatasource, input, {acl , method})
+						Database.create(modelDatasource, input)
 							.then(res => {
 								resolve(res);
 							})

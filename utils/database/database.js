@@ -1,8 +1,6 @@
 import adapters from './adapters';
 import moment from 'moment';
 import Types from '../../lib/types';
-import { get } from 'lodash';
-import { UnknownError, ForbiddenError, AuthenticationRequiredError } from '../../errors';
 
 const DEFAULT_CONNECTION = 'development';
 const DEFAULT_ADAPTER = 'postgresql';
