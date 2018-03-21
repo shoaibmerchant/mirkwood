@@ -312,7 +312,8 @@ class MongoDbDatabaseAdapter {
 					return collection.insertOne(document)
 				})
 				.then(res => {
-					return self.one(datasource, { _id: res.insertedId.toString() });
+					const find = { _id: res.insertedId.toString() };
+					return self.one(datasource, { find });
 				})
 				.then(resolve)
 				.catch(reject);
