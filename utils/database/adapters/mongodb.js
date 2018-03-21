@@ -235,17 +235,26 @@ class MongoDbDatabaseAdapter {
 		return dbPromise;
 	}
 
-	one(datasource, find, args) {
+	one(datasource, args) {
 		let dbPromise = new Promise((resolve, reject) => {
 			this.client
 				.then(db => {
+					const { find } = args;
 					let collectionName = datasource.collection || datasource.table;
 					let collection = db.collection(collectionName);
 
-					let resolvedFind = this._resolveFind(find);
+					let resolvedFind = this._resolveFind(find || {});
 
 					if (resolvedFind._id) {
 						resolvedFind._id = new ObjectID(resolvedFind._id);
+					}
+
+					// resolve query arg
+					let query = args.query || false;
+
+					// override resovledFind if query is specified
+					if (args.query) {
+						resolvedFind = this._resolveQuery(query);
 					}
 
 					// handle soft deletion
