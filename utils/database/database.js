@@ -68,9 +68,9 @@ class Database {
 		return dbConnection.delete(datasource, find, args);
 	}
 
-	static one = (datasource, find, args) => {
+	static one = (datasource, args) => {
 		let dbConnection = Database.getConnection(datasource.connection);
-		return dbConnection.one(datasource, find, args);
+		return dbConnection.one(datasource, args);
 	}
 
 	static extend = (mode, row, datasource) => {

@@ -31,6 +31,9 @@ class DatabaseQueries {
 					args: {
             find: {
 							type: Database.generateFindType(model)
+						},
+						query: {
+							type: DatabaseQueries.generateQueryType(type, inputType, model)
 						}
 					}
 				}),
@@ -345,7 +348,7 @@ class DatabaseQueries {
 				type: Types.AggregateType
 			}
 		}
-    // check if where is not specified then generate default
+    // check if where find is not specified then generate default
 		if (!args.find && !args._id) {
 			args.find = {
 				fields: {
@@ -361,13 +364,15 @@ class DatabaseQueries {
 		return {
 			type: type,
 			args: argsObjects,
-      resolve: new Resolver(resolverName, (_, args) => {
-				const aggregate = args.aggregate;
+      resolve: new Resolver(resolverName, (_, resolverArgs) => {
+				const transformedArgs = resolverArgs;
         if (args._id) {
 					args.find = { _id: args._id };
-					delete args._id;
 				}
-        return Database.one(modelDatasource, args.find, { aggregate });
+
+				const { find, query, aggregate } = transformedArgs;
+
+        return Database.one(modelDatasource, { find, query, aggregate });
       })
 		};
   }
