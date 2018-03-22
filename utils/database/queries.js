@@ -315,7 +315,7 @@ class DatabaseQueries {
 
 				find[field] = joinValue.toString();
 
-				return Database.one(modelDatasource, find, { allowedEntities: ctx.allowedEntities });
+				return Database.one(modelDatasource, { find }, { allowedEntities: ctx.allowedEntities });
       })
 		};
   }

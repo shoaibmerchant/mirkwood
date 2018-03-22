@@ -376,7 +376,11 @@ class PostgresqlDatabaseAdapter {
 
       this.client(tableName).insert(row)
         .then((res) => {
-          return this.one(datasource, { _id: row._id })
+          const find = {
+            _id: row._id
+          };
+
+          return this.one(datasource, { find })
         })
         .then(resolve)
         .catch(reject);
