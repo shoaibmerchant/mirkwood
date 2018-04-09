@@ -1,14 +1,16 @@
 import path from 'path';
 import Types from '../../lib/types';
 import Resolver from '../../lib/resolver';
-import {GraphQLObjectType} from 'graphql';
+import { GraphQLObjectType } from 'graphql';
 import queries from '../database/queries';
 import {set,map} from 'lodash'
 
+import Queue from './queue';
+
 class QueueUtility {
   constructor({config}) {
-    this.config = config[process.env['NODE_ENV'] || 'development'];
-    console.log("Config : ", this.config);
+    //Passing config to the Queue Utility
+    Queue.init({ config });
 
     this.resolvers = {
       push: this
