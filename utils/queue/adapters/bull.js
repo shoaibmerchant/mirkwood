@@ -14,8 +14,12 @@ class BullQueueAdapter {
     // if (this.client.connection && password === '') {
     //   delete this.client.connection.password;
     // }
-    queues[queueName] = new Queue(queueName, {redis: this.client.connection});
-    queues[queueName].process(queueName, this.client.action);
+    let limiter = {
+      ...this.client.limiter
+    }
+    queues[queueName] = new Queue(queueName, {redis: this.client.connection, limiter});
+    let concurrency = this.client.concurrency || 1;
+    queues[queueName].process(queueName, concurrency, this.client.action);
   }
 
   _getQueueName() {
