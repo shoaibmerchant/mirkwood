@@ -9,17 +9,14 @@ class BullQueueAdapter {
   
   _initializeQueue() {
     let queueName = this._getQueueName();
-    // let password = this.client.connection.password;
-    // password = password || '';
-    // if (this.client.connection && password === '') {
-    //   delete this.client.connection.password;
-    // }
     let limiter = {
       ...this.client.limiter
-    }
+    };
     queues[queueName] = new Queue(queueName, {redis: this.client.connection, limiter});
     let concurrency = this.client.concurrency || 1;
-    queues[queueName].process(queueName, concurrency, this.client.action);
+    queues[queueName].process(queueName, concurrency, this.client.action)
+      .then(resp => { console.log("Job completed, ", resp); })
+      .catch(err => { console.log("SomeError: ", err); });
   }
 
   _getQueueName() {
@@ -30,9 +27,21 @@ class BullQueueAdapter {
     let queueName = this._getQueueName();
     let options = {
       ...this.client.options,
-      ...data.options
+      ...data.options //overriding default options
     };
-    queues[queueName].add(queueName, data.message, {...options});
+    return new Promise ((resolve, reject) => {
+      queues[queueName].add(queueName, data.message, {...options})
+        .then(resp => {
+          let tmp_resp = {
+            id: resp.id,
+            data: resp.data
+          };
+          resolve(tmp_resp);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    })
   }
 }
 

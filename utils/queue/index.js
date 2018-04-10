@@ -27,19 +27,27 @@ class QueueUtility {
 
     schemaArgs = {
       message: {
-        type: Types.String
+        type: Types.String,
+        required: true
       },
       // ...schemaArgs,
       queue: {
-        type: Types.String
+        type: Types.String,
+        required: true        
       },
       options: {
         type: {
           name: "QueueOptions",
           fields: {
+            jobId: {
+              type: Types.String
+            },
             attempts: {
               type: Types.Int,
-              defaultValue: 1
+              defaultValue: 3
+            },
+            lifo: {
+              type: Types.Boolean
             },
             priority: {
               type: Types.Int,
@@ -52,6 +60,23 @@ class QueueUtility {
             removeOnComplete: {
               type: Types.Boolean,
               defaultValue: false
+            },
+            removeOnFail: {
+              type: Types.Boolean,
+              defaultValue: false
+            },
+            backoff: {
+              type: {
+                name: "RetryOptions",
+                fields: {
+                  type: {
+                    type: Types.String
+                  },
+                  delay: {
+                    type: Types.Int
+                  }
+                }
+              }
             }
           }
         }
@@ -60,13 +85,25 @@ class QueueUtility {
 
     let argsObjects = Types.generateArgs(schemaArgs, inputSchema.name);
 
+    const resolvedType = Types.generateType({
+      name: "QueueCreated",
+      fields: {
+        id: {
+          type: Types.ID
+        },
+        data: {
+          type: Types.String
+        }
+      }
+    });
+
     return {
-      type: Types.Boolean,
+      type: resolvedType,
       args: argsObjects,
       resolve: new Resolver(resolverName, (_, args, ctx) => {
         console.log(args);
-        Queue.push(model, args);
-        return true;
+        return Queue.push(model, args);
+        // return true;
       })
     };
     
