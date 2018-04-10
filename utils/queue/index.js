@@ -33,8 +33,28 @@ class QueueUtility {
       queue: {
         type: Types.String
       },
-      persist: {
-        type: Types.Boolean
+      options: {
+        type: {
+          name: "QueueOptions",
+          fields: {
+            attempts: {
+              type: Types.Int,
+              defaultValue: 1
+            },
+            priority: {
+              type: Types.Int,
+              defaultValue: 1
+            },
+            delay: {
+              type: Types.Int,
+              defaultValue: 0
+            },
+            removeOnComplete: {
+              type: Types.Boolean,
+              defaultValue: false
+            }
+          }
+        }
       }
     };
 
@@ -45,7 +65,8 @@ class QueueUtility {
       args: argsObjects,
       resolve: new Resolver(resolverName, (_, args, ctx) => {
         console.log(args);
-        return true
+        Queue.push(model, args);
+        return true;
       })
     };
     
