@@ -23,7 +23,8 @@ class Queue {
         let queueAdapter = adapters[queue.adapter || DEFAULT_ADAPTER];
         queue = {
           ...queue,
-          prefix: queueConnectionParams.prefix || ''
+          prefix: queueConnectionParams.prefix || '',
+          persistence: queueConnectionParams.persistence
         };
         let newConnection = new queueAdapter(queue);
         if (type === true && name === queue.name) {

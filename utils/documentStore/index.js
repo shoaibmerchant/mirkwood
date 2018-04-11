@@ -17,7 +17,7 @@ class DocumentStoreUtility {
     if (this.config.adapter === 'couchdb') {
       this.client = new CouchDbDatabaseAdapter(this.config);
     }
-
+    console.log("[DocumentStore] Config: ", this.config);
     this.resolvers = {
       create: this.createResolver.bind(this)
     };
