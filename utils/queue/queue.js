@@ -41,6 +41,11 @@ class Queue {
     let queueConnection = Queue._initQueues(true, args.queue);
     return queueConnection.push(args);
   }
+
+  static clean = (datasource, args) => {
+    let queueConnection = Queue._initQueues(true, args.queue);
+    return queueConnection.clean(args);
+  }
 }
 
 export default Queue;

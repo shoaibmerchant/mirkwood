@@ -43,6 +43,19 @@ class BullQueueAdapter {
         });
     })
   }
+
+  clean(data) {
+    let queueName = this._getQueueName();
+    return new Promise ((resolve,reject) => {
+      queues[queueName].clean(data.grace, data.type)
+        .then(resp => {
+          resolve(resp);
+        })
+        .catch(err => {
+          reject(err);
+        });
+    })
+  }
 }
 
 export default BullQueueAdapter;

@@ -13,9 +13,8 @@ class QueueUtility {
     Queue.init({ config });
 
     this.resolvers = {
-      push: this
-      .pushResolver
-      .bind(this)
+      push: this.pushResolver.bind(this),
+      clean: this.cleanResolver.bind(this)
     };
   }
 
@@ -101,13 +100,49 @@ class QueueUtility {
       type: resolvedType,
       args: argsObjects,
       resolve: new Resolver(resolverName, (_, args, ctx) => {
-        console.log(args);
         return Queue.push(model, args);
-        // return true;
       })
     };
     
   }
+
+  cleanResolver(resolverName, type, model, inputSchema) {
+    let schemaArgs = inputSchema.args ;
+    let schema = model.schema;
+    let modelName = schema.name;
+
+    schemaArgs = {
+      queue: {
+        type: Types.String,
+        required: true
+      },
+      type: {
+        type: Types.Enum('QueueType', {
+          'active': { value: 'active' },
+          'delayed': { value: 'delayed' },
+          'wait': { value: 'wait' },
+          'completed': { value: 'completed' },
+          'failed': { value: 'failed' }
+        }),
+        defaultValue: 'active'
+      },
+      grace: {
+        type: Types.Int,
+        defaultValue: 0
+      }
+    };
+
+    let argsObjects = Types.generateArgs(schemaArgs, inputSchema.name);
+
+    return {
+      type: Types.Boolean,
+      args: argsObjects,
+      resolve: new Resolver(resolverName, (_, args, ctx) => {
+        return Queue.clean(model, args);
+      })
+    };
+  }
+
   mutations(type, inputType, model) {
     return null;
   }
