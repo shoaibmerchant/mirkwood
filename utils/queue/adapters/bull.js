@@ -23,10 +23,9 @@ class BullQueueAdapter {
     // Local events pass the job instance...
     this._onCompleted(queueName);
     this._onFailed(queueName);
-    this._onActive(queueName);
   }
 
-  _createDocument(data) {
+  _createDocument(data, _extra_data) {
     if (this.client.persistence.adapter !== 'couchdb') {
       return false;
     }
@@ -34,7 +33,7 @@ class BullQueueAdapter {
       return false;
     }
 
-    const extra_data = this._getDocument(data, {status: "PENDING"});
+    const extra_data = this._getDocument(data, _extra_data);
     let doc = new CouchDB(this.client.persistence);
     doc.create(null, extra_data, this.client.persistence.database)
       .then(resp => { /*CREATED - console.log(resp);*/ })
@@ -74,16 +73,6 @@ class BullQueueAdapter {
       .catch(err => { console.log("Error: ", err); })
   }
   
-  _onActive(queueName) {
-    queues[queueName].on('active', (job, result) => {
-      let tmp = {
-        status: "ACTIVE",
-        activeOn: moment().format('YYYY-MM-DD HH:mm:ss')
-      }
-      this._updateDocument(job.id, job, tmp);
-    })
-  }
-
   _onCompleted(queueName) {
     queues[queueName].on('completed', (job, result) => {
       let tmp = {
@@ -121,7 +110,7 @@ class BullQueueAdapter {
             id: resp.id,
             data: resp.data
           };
-          this._createDocument(resp);
+          this._createDocument(resp, {status: "PENDING", jobType: data.jobType});
           resolve(tmp_resp);
         })
         .catch(err => { reject(err); });
