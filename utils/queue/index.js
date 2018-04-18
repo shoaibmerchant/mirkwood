@@ -25,7 +25,7 @@ class QueueUtility {
     let modelName = schema.name;
 
     schemaArgs = {
-      message: {
+      data: {
         type: Types.String,
         required: true
       },
@@ -33,6 +33,9 @@ class QueueUtility {
       queue: {
         type: Types.String,
         required: true        
+      },
+      jobType: {
+        type: Types.String
       },
       options: {
         type: {

@@ -1,5 +1,6 @@
 import Queue from 'bull';//Plugin
 import CouchDB from '../../documentStore/couchdb';
+import moment from 'moment';
 
 let queues = [];
 class BullQueueAdapter {
@@ -16,34 +17,32 @@ class BullQueueAdapter {
     queues[queueName] = new Queue(queueName, {redis: this.client.connection, limiter});
     let concurrency = this.client.concurrency || 1;
     queues[queueName].process(queueName, concurrency, this.client.action)
-      .then(resp => { console.log("Job completed, ", resp); })
-      .catch(err => { console.log("SomeError: ", err); });
+      .then(resp => { /* JOB COMPLETED */ })
+      .catch(err => { console.log("[Queue] Error: ",err) });
 
     // Local events pass the job instance...
-    this._eventProgress(queueName);
-    this._eventCompleted(queueName);
+    this._onProgress(queueName);
+    this._onCompleted(queueName);
+    this._onFailed(queueName);
   }
 
   _createDocument(data) {
-
     if (this.client.persistence.adapter !== 'couchdb') {
       return false;
     }
-    const extra_data = this._getDocument(data);
+    if (!this.client.persist) {
+      return false;
+    }
+
+    const extra_data = this._getDocument(data, {});
     let doc = new CouchDB(this.client.persistence);
     doc.create(null, extra_data, this.client.persistence.database)
-      .then(resp => {
-        console.log("Document Created.");
-        console.log(resp);
-      })
-      .catch(err => {
-        console.log("Error: ", err);
-      })
-    
+      .then(resp => { /*CREATED - console.log(resp);*/ })
+      .catch(err => { console.log("Error: ", err); })
   }
   
-  _getDocument(job) {
-    let doc = {
+  _getDocument(job, _extra_data) {
+    let d = {
       _id: job.id.toString(),
       name: job.name,
       data: job.data,
@@ -53,44 +52,51 @@ class BullQueueAdapter {
       stacktrace: job.stacktrace,
       returnvalue: job.returnvalue,
       finishedOn: job.finishedOn,
-      processedOn: job.processedOn
+      processedOn: job.processedOn,
+      ..._extra_data
     }
-    return doc;
+    return d;
   }
 
-  _updateDocument(job_id, data) {
-    console.log("UpdateDocument Called.");
+  _updateDocument(job_id, data, _extra) {
     if (this.client.persistence.adapter !== 'couchdb') {
+      return false;
+    }
+    if (!this.client.persist) {
       return false;
     }
 
     let doc = new CouchDB(this.client.persistence);
     const _id = job_id.toString();
-    const extra_data = this._getDocument(data);
-    console.log("Data: ", extra_data);
+    const extra_data = this._getDocument(data, _extra);
     doc.update(null, {input: extra_data, _id, store: this.client.persistence.database})
-      .then(resp => {
-        console.log("Document Updated.");
-        console.log(resp);
-      })
-      .catch(err => {
-        console.log("Error: ", err);
-      })
-
+      .then(resp => { /* RESPONSE */  })
+      .catch(err => { console.log("Error: ", err); })
   }
 
-  _eventProgress(queueName) {
+  _onProgress(queueName) {
     queues[queueName].on('progress', (job, progress) => {
       console.log(`Job ${job.id} is ${progress * 100}% ready!`);
     });
   }
   
-  _eventCompleted(queueName) {
+  _onCompleted(queueName) {
     queues[queueName].on('completed', (job, result) => {
-      console.log(`Job ${job.id} completed! Result: ${result}`);
-      console.log(`Job Data: ${job.data}`);
-      this._updateDocument(job.id, job);
-      job.remove();
+      let tmp = {
+        status: "COMPLETED",
+        finishedOn: moment().format('YYYY-MM-DD HH:mm:ss')
+      }
+      this._updateDocument(job.id, job, tmp);
+    });
+  }
+
+  _onFailed(queueName) {
+    queues[queueName].on('failed', (job, result) => {
+      let tmp = {
+        status: "FAILED",
+        failedOn: moment().format('YYYY-MM-DD HH:mm:ss')
+      }
+      this._updateDocument(job.id, job, tmp);
     });
   }
 
@@ -105,7 +111,7 @@ class BullQueueAdapter {
       ...data.options //overriding default options
     };
     return new Promise ((resolve, reject) => {
-      queues[queueName].add(queueName, data.message, {...options})
+      queues[queueName].add(queueName, data.data, {...options})
         .then(resp => {
           let tmp_resp = {
             id: resp.id,
@@ -114,9 +120,7 @@ class BullQueueAdapter {
           this._createDocument(resp);
           resolve(tmp_resp);
         })
-        .catch(err => {
-          reject(err);
-        });
+        .catch(err => { reject(err); });
     })
   }
 
@@ -124,12 +128,8 @@ class BullQueueAdapter {
     let queueName = this._getQueueName();
     return new Promise ((resolve,reject) => {
       queues[queueName].clean(data.grace, data.type)
-        .then(resp => {
-          resolve(resp);
-        })
-        .catch(err => {
-          reject(err);
-        });
+        .then(resp => { resolve(resp); })
+        .catch(err => { reject(err); });
     })
   }
 }
