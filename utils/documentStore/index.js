@@ -8,7 +8,11 @@ import {set,map} from 'lodash'
 
 class DocumentStoreUtility {
   constructor({config}) {
-    this.config = config[process.env['NODE_ENV'] || 'development'];
+    // if documentstore config not found don't throw exception
+    if (config) {
+      this.config = config[process.env['NODE_ENV'] || 'development'];
+    }
+
     if (!this.config) {
       this.client = null;
       return;
