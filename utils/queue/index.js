@@ -72,7 +72,8 @@ class QueueUtility {
                 name: "RetryOptions",
                 fields: {
                   type: {
-                    type: Types.String
+                    type: Types.String,
+                    defaultValue: "exponential"
                   },
                   delay: {
                     type: Types.Int
