@@ -26,16 +26,16 @@ class QueueUtility {
 
     schemaArgs = {
       data: {
-        type: Types.String,
+        type: Types.Object,
         required: true
-      },
-      // ...schemaArgs,
-      queue: {
-        type: Types.String,
-        required: true        
       },
       jobType: {
         type: Types.String
+      },
+      ...schemaArgs,
+      queue: {
+        type: Types.String,
+        required: true        
       },
       options: {
         type: {
