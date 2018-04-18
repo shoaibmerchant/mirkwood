@@ -18,7 +18,7 @@ class BullQueueAdapter {
     let concurrency = this.client.concurrency || 1;
     queues[queueName].process(queueName, concurrency, this.client.action)
       .then(resp => { /* JOB COMPLETED */ })
-      .catch(err => { console.log("[Queue] Error: ",err) });
+      .catch(err => { /* Error */ });
 
     // Local events pass the job instance...
     this._onCompleted(queueName);
@@ -37,7 +37,7 @@ class BullQueueAdapter {
     let doc = new CouchDB(this.client.persistence);
     doc.create(null, extra_data, this.client.persistence.database)
       .then(resp => { /*CREATED - console.log(resp);*/ })
-      .catch(err => { console.log("Error: ", err); })
+      .catch(err => {})
   }
   
   _getDocument(job, _extra_data) {
@@ -70,7 +70,7 @@ class BullQueueAdapter {
     const extra_data = this._getDocument(data, _extra);
     doc.update(null, {input: extra_data, _id, store: this.client.persistence.database})
       .then(resp => { /* RESPONSE */  })
-      .catch(err => { console.log("Error: ", err); })
+      .catch(err => {})
   }
   
   _onCompleted(queueName) {
