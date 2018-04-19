@@ -26,7 +26,7 @@ class QueueUtility {
 
     schemaArgs = {
       data: {
-        type: Types.Object,
+        type: Types.String,
         required: true
       },
       jobType: {
