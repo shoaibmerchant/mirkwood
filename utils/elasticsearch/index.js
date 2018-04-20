@@ -30,6 +30,9 @@ class ElasticsearchUtility {
         .bind(this),
       bulk: this
         .bulkResolver
+        .bind(this),
+      delete:this
+        .deleteResolver
         .bind(this)
     };
 
@@ -101,6 +104,24 @@ class ElasticsearchUtility {
       args: argsObjects,
       resolve: new Resolver(resolverName, (_, args, ctx) => {
         return client.index(modelName, args._id, args.input);
+      })
+    };
+  }
+  deleteResolver(resolverName, type, model, inputSchema) {
+    const client = this.client;
+    let args = inputSchema.args;
+    let schema = model.schema;
+    let modelName = schema.name;
+    args = {
+      ...args
+    };
+
+    let argsObjects = Types.generateArgs(args, inputSchema.name);
+    return {
+      type: Types.Boolean,
+      args: argsObjects,
+      resolve: new Resolver(resolverName, (_, args, ctx) => {
+        return client.delete(modelName, args._id);
       })
     };
   }
@@ -324,6 +345,13 @@ class ElasticsearchUtility {
             },
             input: {
               type: inputType
+            }
+          }
+        }),
+        delete:this.deleteResolver('elasticsearch.delete',Types.Boolean,model,{
+          args: {
+            _id: {
+              type: Types.ID
             }
           }
         })

@@ -31,6 +31,11 @@ export default class ElasticSearch {
           .create({index: this.config.index, type: typeName, id: id, body: body});
       })
   }
+  
+  delete(typeName, id) {
+     return this.client.delete({index: this.config.index, type: typeName, id: id });
+  }
+
   search(modelName, match) {
     return new Promise((resolve, reject) => {
       this
