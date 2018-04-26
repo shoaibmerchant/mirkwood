@@ -16,7 +16,7 @@ class CouchDbDatabaseAdapter {
 		return `${connection.protocol}://${connection.user}:${connection.password}@${connection.host}:${connection.port}`;
 	}
 
-	createDb({name}) {
+	createStore({name}) {
 		return new Promise((resolve, reject) => {
 			this.nano.db.create(name, (err, body) => {
 				if (err) {
@@ -28,7 +28,7 @@ class CouchDbDatabaseAdapter {
 		})
 	}
 
-	replicateDb({source, target, createTarget}) {
+	replicate({source, target, createTarget}) {
 		createTarget = createTarget || false;
 		return new Promise((resolve, reject) => {
 			this.nano.db.replicate(source, target, { create_target: createTarget },

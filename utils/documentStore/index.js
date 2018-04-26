@@ -103,7 +103,7 @@ class DocumentStoreUtility {
       type: type,
       args: argsObjects,
       resolve: new Resolver(resolverName, (_, args, ctx) => {
-        return client.createDb(args);
+        return client.createStore(args);
       })
     };
   }
@@ -122,7 +122,7 @@ class DocumentStoreUtility {
       type: type,
       args: argsObjects,
       resolve: new Resolver(resolverName, (_, args, ctx) => {
-        return client.replicateDb(args);
+        return client.replicate(args);
       })
     };
   }
@@ -254,14 +254,14 @@ class DocumentStoreUtility {
     return new GraphQLObjectType({
       name: [modelName, 'documentStore_Mutation'].join(''),
       fields: {
-        createDb: this.createDatabase('documentstore.createDb', Types.Boolean, model, {
+        createStore: this.createDatabase('documentstore.createStore', Types.Boolean, model, {
           args: {
             name: {
               type: Types.String
             }
           }
         }),
-        replicateDb: this.replicateDatabase('documentstore.replicateDb', Types.Boolean, model, {
+        replicate: this.replicateDatabase('documentstore.replicate', Types.Boolean, model, {
           args: {
             source: {
               type: Types.String
