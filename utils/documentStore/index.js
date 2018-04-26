@@ -89,6 +89,44 @@ class DocumentStoreUtility {
     };
   }
 
+  createDatabase(resolverName, type, model, inputSchema) {
+    const client = this.client;
+    let args = inputSchema.args;
+    let schema = model.schema;
+    let modelName = schema.name;
+    args = {
+      ...args
+    };
+
+    let argsObjects = Types.generateArgs(args, inputSchema.name);
+    return {
+      type: type,
+      args: argsObjects,
+      resolve: new Resolver(resolverName, (_, args, ctx) => {
+        return client.createStore(args);
+      })
+    };
+  }
+
+  replicateDatabase(resolverName, type, model, inputSchema) {
+    const client = this.client;
+    let args = inputSchema.args;
+    let schema = model.schema;
+    let modelName = schema.name;
+    args = {
+      ...args
+    };
+
+    let argsObjects = Types.generateArgs(args, inputSchema.name);
+    return {
+      type: type,
+      args: argsObjects,
+      resolve: new Resolver(resolverName, (_, args, ctx) => {
+        return client.replicate(args);
+      })
+    };
+  }
+
   oneResolver(resolverName, type, model, inputSchema) {
     const client = this.client;
     let args = inputSchema.args;
@@ -216,6 +254,26 @@ class DocumentStoreUtility {
     return new GraphQLObjectType({
       name: [modelName, 'documentStore_Mutation'].join(''),
       fields: {
+        createStore: this.createDatabase('documentstore.createStore', Types.Boolean, model, {
+          args: {
+            name: {
+              type: Types.String
+            }
+          }
+        }),
+        replicate: this.replicateDatabase('documentstore.replicate', Types.Boolean, model, {
+          args: {
+            source: {
+              type: Types.String
+            },
+            target: {
+              type: Types.String
+            },
+            createTarget: {
+              type: Types.Boolean
+            }
+          }
+        }),
         create: this.createResolver('documentstore.create', type, model, {
           args: {
             input: {
