@@ -48,6 +48,9 @@ class AWSS3Utility {
 				type: Types.String,
 				defaultValue: 'public-read'
 			},
+			cache: {
+				type: Types.String
+			},
 			...args
 		};
 
@@ -72,7 +75,8 @@ class AWSS3Utility {
 		          Key: dest,
 		          ACL: args.acl,
 		          Body: res,
-		          ContentType: mime.getType(srcPath)
+							ContentType: mime.getType(srcPath),
+							CacheControl: args.cache
 						};
 						s3bucket.putObject(data, (err, res) => {
 							if (err) {
