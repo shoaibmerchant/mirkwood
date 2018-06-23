@@ -266,7 +266,7 @@ class DatabaseQueries {
 					sort: args.sort,
 					orderBy: args.orderBy,
 					find: args.find || {},
-					query: args.query || {},
+					query: args.query,
 				};
 
 				if (joinValue === null) {
@@ -310,7 +310,7 @@ class DatabaseQueries {
 				let joinValue = obj[joinBy];
 
 				let find = args.find || {};
-				let query = args.query || {};
+				let query = args.query;
 
 				if (joinValue === null) {
 					return Promise.resolve(null)
