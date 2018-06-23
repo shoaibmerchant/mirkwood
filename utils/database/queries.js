@@ -266,7 +266,7 @@ class DatabaseQueries {
 					sort: args.sort,
 					orderBy: args.orderBy,
 					find: args.find || {},
-					query: args.query,
+					query: args.query || {},
 				};
 
 				if (joinValue === null) {
