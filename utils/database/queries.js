@@ -293,6 +293,9 @@ class DatabaseQueries {
 			find: {
 				type: Database.generateFindType(model)
 			},
+			query: {
+				type: DatabaseQueries.generateQueryType(type, model)
+			},
 			...args
     };
 
@@ -307,6 +310,7 @@ class DatabaseQueries {
 				let joinValue = obj[joinBy];
 
 				let find = args.find || {};
+				let query = args.query || {};
 
 				if (joinValue === null) {
 					return Promise.resolve(null)
@@ -314,7 +318,7 @@ class DatabaseQueries {
 
 				find[field] = joinValue.toString();
 
-				return Database.one(modelDatasource, { find });
+				return Database.one(modelDatasource, { find, query });
       })
 		};
   }
