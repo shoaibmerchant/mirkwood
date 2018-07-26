@@ -33,7 +33,7 @@ class DatabaseQueries {
 							type: Database.generateFindType(model)
 						},
 						query: {
-							type: DatabaseQueries.generateQueryType(type, inputType, model)
+							type: DatabaseQueries.generateQueryType(type, model)
 						}
 					}
 				}),
@@ -43,7 +43,7 @@ class DatabaseQueries {
 							type: Database.generateFindType(model)
             },
 						query: {
-							type: DatabaseQueries.generateQueryType(type, inputType, model)
+							type: DatabaseQueries.generateQueryType(type, model)
 						}
 					}
 				}),
@@ -53,7 +53,7 @@ class DatabaseQueries {
 							type: Database.generateFindType(model)
             },
 						query: {
-							type: DatabaseQueries.generateQueryType(type, inputType, model)
+							type: DatabaseQueries.generateQueryType(type, model)
 						}
 					}
 				})
@@ -127,7 +127,7 @@ class DatabaseQueries {
 		return queryFieldSchema;
 	}
 
-	static generateQueryFieldsType(type, inputType, model) {
+	static generateQueryFieldsType(type, model) {
 		let schema = model.schema;
 
 		let modelDatasource = schema.datasource
@@ -143,7 +143,7 @@ class DatabaseQueries {
 		});
 	}
 
-	static generateQueryType(type, inputType, model) {
+	static generateQueryType(type, model) {
 		let schema = model.schema;
 
 		let modelDatasource = schema.datasource
@@ -160,7 +160,7 @@ class DatabaseQueries {
 		  name: queryTypeName,
 		  fields: () => ({
 				fields: {
-					type: DatabaseQueries.generateQueryFieldsType(type, inputType, model)
+					type: DatabaseQueries.generateQueryFieldsType(type, model)
 				},
 		    and: {
 		      type: new GraphQLList(queryType)
@@ -238,9 +238,9 @@ class DatabaseQueries {
 			find: {
 				type: Database.generateFindType(model)
 			},
-			// query: {
-			// 	type: DatabaseQueries.generateQueryType(type, modelInputTypeName, model)
-			// },
+			query: {
+				type: DatabaseQueries.generateQueryType(type, model)
+			},
       sort: {
         type: Types.SortType
       },
@@ -265,8 +265,8 @@ class DatabaseQueries {
 					limit: args.limit,
 					sort: args.sort,
 					orderBy: args.orderBy,
-					find: args.find || {}
-					// query: args.query
+					find: args.find || {},
+					query: args.query,
 				};
 
 				if (joinValue === null) {
@@ -293,6 +293,9 @@ class DatabaseQueries {
 			find: {
 				type: Database.generateFindType(model)
 			},
+			query: {
+				type: DatabaseQueries.generateQueryType(type, model)
+			},
 			...args
     };
 
@@ -307,6 +310,7 @@ class DatabaseQueries {
 				let joinValue = obj[joinBy];
 
 				let find = args.find || {};
+				let query = args.query;
 
 				if (joinValue === null) {
 					return Promise.resolve(null)
@@ -314,7 +318,7 @@ class DatabaseQueries {
 
 				find[field] = joinValue.toString();
 
-				return Database.one(modelDatasource, { find });
+				return Database.one(modelDatasource, { find, query });
       })
 		};
   }
