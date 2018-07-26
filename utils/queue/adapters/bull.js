@@ -14,11 +14,11 @@ class BullQueueAdapter {
     let limiter = {
       ...this.client.limiter
     };
-    queues[queueName] = new Queue(queueName, {redis: this.client.connection, limiter});
+    queues[queueName] = new Queue(queueName); //LEGACY: {redis: this.client.connection, limiter}
     let concurrency = this.client.concurrency || 1;
     queues[queueName].process(queueName, concurrency, this.client.action)
       .then(resp => { /* JOB COMPLETED */ })
-      .catch(err => { /* Error */ });
+      .catch(err => { /* Error */ console.log("ERROR: ",err) });
 
     // Local events pass the job instance...
     this._onCompleted(queueName);
