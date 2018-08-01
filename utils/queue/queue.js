@@ -8,7 +8,7 @@ class Queue {
   static init({ config }) {
     this.config = config;
     this.connections = {};
-    this._initializeQueues();
+    this._initializeQueues();    
 	}
 
   static _initializeQueues = () => {
