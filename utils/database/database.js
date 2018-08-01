@@ -83,12 +83,12 @@ class Database {
 		if (datasource.timestamps) {
 
 			if (mode === 'create') {
-				row._created_at = moment.utc().format();
-				row._updated_at = moment.utc().format();
+				row._created_at = row._created_at || moment.utc().format();
+				row._updated_at = row._updated_at || moment.utc().format();
 			}
 
 			if (mode === 'update') {
-				row._updated_at = moment.utc().format();
+				row._updated_at = row._updated_at || moment.utc().format();
 			}
 		}
 		return row;
