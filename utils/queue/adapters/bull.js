@@ -2,11 +2,11 @@ import Queue from 'bull';//Plugin
 import CouchDB from '../../documentStore/couchdb';
 import moment from 'moment';
 
-let queues = [];
 class BullQueueAdapter {
   constructor(connection) {
     this.client = connection;
     this._initializeQueue();
+    this.queues = {};
   }
   
   _initializeQueue() {
@@ -14,9 +14,9 @@ class BullQueueAdapter {
     let limiter = {
       ...this.client.limiter
     };
-    queues[queueName] = new Queue(queueName); //LEGACY: {redis: this.client.connection, limiter}
+    this.queues[queueName] = new Queue(queueName); //LEGACY: {redis: this.client.connection, limiter}
     let concurrency = this.client.concurrency || 1;
-    queues[queueName].process(queueName, concurrency, this.client.action)
+    this.queues[queueName].process(queueName, concurrency, this.client.action)
       .then(resp => { /* JOB COMPLETED */ })
       .catch(err => { /* Error */ console.log("ERROR: ",err) });
 
@@ -74,7 +74,7 @@ class BullQueueAdapter {
   }
   
   _onCompleted(queueName) {
-    queues[queueName].on('completed', (job, result) => {
+    this.queues[queueName].on('completed', (job, result) => {
       let tmp = {
         status: "COMPLETED",
         finishedOn: moment().format('YYYY-MM-DD HH:mm:ss')
@@ -84,7 +84,7 @@ class BullQueueAdapter {
   }
 
   _onFailed(queueName) {
-    queues[queueName].on('failed', (job, result) => {
+    this.queues[queueName].on('failed', (job, result) => {
       let tmp = {
         status: "FAILED",
         failedOn: moment().format('YYYY-MM-DD HH:mm:ss')
@@ -104,7 +104,7 @@ class BullQueueAdapter {
       ...data.options //overriding default options
     };
     return new Promise ((resolve, reject) => {
-      queues[queueName].add(queueName, data.data, {...options})
+      this.queues[queueName].add(queueName, data.data, {...options})
         .then(resp => {
           let tmp_resp = {
             id: resp.id,
@@ -120,7 +120,7 @@ class BullQueueAdapter {
   clean(data) {
     let queueName = this._getQueueName();
     return new Promise ((resolve,reject) => {
-      queues[queueName].clean(data.grace, data.type)
+      this.queues[queueName].clean(data.grace, data.type)
         .then(resp => { resolve(resp); })
         .catch(err => { reject(err); });
     })
