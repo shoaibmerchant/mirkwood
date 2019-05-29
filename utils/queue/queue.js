@@ -11,11 +11,11 @@ class Queue {
     this._initializeQueues();
 	}
 
-  static _initializeQueues = () => {
+  static _initializeQueues() {
     Queue._initQueues(false); //=>no need to return
   }
 
-  static _initQueues = () => {
+  static _initQueues() {
     let connectionName = process.env['NODE_ENV'] || 'development';
     let queueConnectionParams = Queue.config[connectionName];
     try {
@@ -27,21 +27,21 @@ class Queue {
           persistence: queueConnectionParams.persistence
         };
 
-        this.connections[queue.name] = new queueAdapter(queue);
+        Queue.connections[queue.name] = new queueAdapter(queue);
       })
     } catch (err) {
       throw err;
     }
   }
 
-  static push = (datasource, args) => {
+  static push(datasource, args) {
     const queueName = args.queue.name;
-    return this.connections[queueName].push(args);
+    return Queue.connections[queueName].push(args);
   }
 
-  static clean = (datasource, args) => {
+  static clean(datasource, args) {
     const queueName = args.queue.name;
-    return this.connections[queueName].clean(args);
+    return Queue.connections[queueName].clean(args);
   }
 }
 
