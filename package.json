@@ -1,7 +1,6 @@
-
 {
   "name": "@actonate/mirkwood",
-  "version": "0.9.2",
+  "version": "0.9.4",
   "description": "GraphQL based Rapid Server-side Development framework",
   "main": "dist/index.js",
   "scripts": {
@@ -44,7 +43,7 @@
     "session-file-store": "^1.1.2",
     "sha1": "^1.1.1",
     "twig": "^1.10.5",
-    "typeorm": "^0.2.7",
+    "typeorm": "^0.2.12",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
